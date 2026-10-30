@@ -31,14 +31,44 @@ Every variable is optional.
 
 ## Layout
 
-- `src/integration/` imports only `@augustdigital/sdk`, `wagmi`, `viem`, `@solana/wallet-adapter-*`, `@solana/web3.js` and `@stellar/freighter-api`. Copy this directory into your own app.
-  - `sdk.ts` constructs the one SDK instance.
-  - `vaults.ts`, `vault-detail.ts`, `positions.ts` are the reads.
-  - `wallets/` holds one provider per chain family and `use-wallets.ts` normalizes them.
-  - `actions/{evm,solana,stellar}.ts` are the writes. `tx-flow.ts` is the shared state machine and error classification.
-- `src/components/` is presentation. It imports SDK types only.
-- `src/config.ts` holds default RPCs, the dev proxy path and the featured vault ids the canary checks.
-- `tests/canary/` runs read-only against the deployed vaults, nightly in CI, never as a PR gate.
+`src/integration/` is the part to copy. It imports only `@augustdigital/sdk`, `wagmi`, `viem`, `@solana/wallet-adapter-*`, `@solana/web3.js` and `@stellar/freighter-api`. `src/components/` is the React UI on top of it; replace it with your own.
+
+```text
+src/
+├── main.tsx                mounts WalletProviders around App
+├── App.tsx                 vault list, vault detail, the form for the vault's chain
+├── integration/            copy this directory
+│   ├── config.ts           default RPCs, dev API proxy path
+│   ├── sdk.ts              the one AugustSDK instance
+│   ├── vaults.ts           vault catalog grouped by chain family
+│   ├── vault-detail.ts     one vault and 30 days of history
+│   ├── positions.ts        a wallet's positions on every chain
+│   ├── tx-flow.ts          write state machine and error classification
+│   ├── wallets.tsx         WalletProviders and useWallets for all three chains
+│   ├── evm/
+│   │   ├── chains.ts       signing chains, explorer links, amount parsing
+│   │   ├── wallet.tsx      wagmi provider, useEvmWallet
+│   │   └── actions.ts      balances, approve, deposit, request redeem, claim
+│   ├── solana/
+│   │   ├── wallet.tsx      wallet-adapter provider, useSolanaWallet
+│   │   └── actions.ts      balances, deposit, withdraw
+│   └── stellar/
+│       ├── wallet.tsx      Freighter provider, useStellarWallet
+│       └── actions.ts      account pre-flight, balances, deposit, withdraw
+└── components/             React UI: one form per chain, shared list and detail views
+tests/canary/               read-only checks against the live vaults, nightly in CI
+```
+
+Where each chain lives:
+
+| | EVM | Solana | Stellar |
+| --- | --- | --- | --- |
+| Wallet | `integration/evm/wallet.tsx` | `integration/solana/wallet.tsx` | `integration/stellar/wallet.tsx` |
+| Reads and writes | `integration/evm/actions.ts` | `integration/solana/actions.ts` | `integration/stellar/actions.ts` |
+| Form | `components/EvmActions.tsx` | `components/SolanaActions.tsx` | `components/StellarActions.tsx` |
+| Libraries | `wagmi`, `viem` | `@solana/wallet-adapter-*`, `@solana/web3.js` | `@stellar/freighter-api` |
+
+Each test sits next to the file it covers.
 
 ## SDK construction (`src/integration/sdk.ts`)
 
@@ -58,14 +88,14 @@ The package is CommonJS. Vite's dev server and its production build expose the d
 
 ## Per-chain walkthroughs
 
-### EVM (`actions/evm.ts`)
+### EVM (`integration/evm/actions.ts`)
 
 1. `sdk.evm.setSigner(walletClient)` before every write. The wallet can rotate between interactions.
 2. Approve is its own button. `sdk.evm.approve` returns `sent`, `sufficient` or `native`; the deposit button unlocks after it.
 3. `vaultDeposit({ target, wallet, amount, wait: true })` in human units.
 4. Withdraw is `vaultRequestRedeem`, then `getVaultAvailableRedemptions`, then `claimWithdrawal` (`evm-2`) or `vaultRedeem` with `receiverIndex: '0'` (`evm-0`, `evm-1`), chosen by `vault.version`.
 
-### Solana (`actions/solana.ts`)
+### Solana (`integration/solana/actions.ts`)
 
 1. `Solana.utils.resolveProgramId(vault.address, { program_id: vault.programId })`. The catalog's `programId` is what makes a factory (v2) vault resolve; pass `vaultAddress` only when it differs from the program.
 2. `sdk.solana.setWalletProvider(publicKey, signTransaction)` before every write.
@@ -74,7 +104,7 @@ The package is CommonJS. Vite's dev server and its production build expose the d
 5. Withdrawals are sized with the share mint's decimals from `fetchUserShareBalanceRaw`.
 6. A failed balance read shows "unknown", never 0. Submit stays disabled until `publicKey` and `signTransaction` are both present.
 
-### Stellar (`actions/stellar.ts`)
+### Stellar (`integration/stellar/actions.ts`)
 
 1. Connect with Freighter `requestAccess` on click, never on mount. Restore the stored address in an effect.
 2. `sdk.stellar.vaultDeposit({ contractId, amount, senderAddress })` builds unsigned XDR; `amount` is the raw string in smallest units. Freighter signs with the mainnet passphrase; `sdk.stellar.submitTransaction` sends it.
@@ -97,6 +127,6 @@ If you host this app on your own origin, ask Upshift to add it to the allow-list
 
 - Solana and Stellar addresses are case-sensitive. Never lowercase them.
 - Solana vaults carry the SDK's synthetic chain id `-1`, Stellar `-3`. `vaults.ts` groups on those.
-- EVM writes sign on the chains in `integration/evm-chains.ts` (Ethereum mainnet). The form asks the wallet to switch when it is on another chain, shows no form for a vault on a chain outside that list, and builds explorer links from the chain's own explorer.
+- EVM writes sign on the chains in `integration/evm/chains.ts` (Ethereum mainnet). The form asks the wallet to switch when it is on another chain, shows no form for a vault on a chain outside that list, and builds explorer links from the chain's own explorer.
 - Positions are read once per chain family, so one failing family does not hide the others. EVM positions cover the chains configured in `providers` (Ethereum mainnet).
 - The SDK logs a version-check warning when a newer release exists. Set `versionCheck: { enabled: false }` to silence it.

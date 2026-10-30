@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import type { WalletSummary } from '../integration/wallets/use-wallets';
+import type { WalletSummary } from '../integration/wallets';
 import { WalletBar } from './WalletBar';
 
 const wallet = (

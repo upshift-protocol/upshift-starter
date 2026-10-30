@@ -8,7 +8,7 @@ import {
   solanaDeposit,
   solanaWithdraw,
   toRawAmount,
-} from './solana';
+} from './actions';
 
 const sdkMocks = vi.hoisted(() => ({
   getVaultMints: vi.fn(),

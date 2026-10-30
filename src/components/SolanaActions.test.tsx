@@ -14,11 +14,11 @@ const actions = vi.hoisted(() => ({
   solanaDeposit: vi.fn(),
   solanaWithdraw: vi.fn(),
 }));
-vi.mock('../integration/wallets/solana', () => ({
+vi.mock('../integration/solana/wallet', () => ({
   useSolanaWallet: () => wallet,
 }));
-vi.mock('../integration/actions/solana', async (importActual) => ({
-  ...(await importActual<typeof import('../integration/actions/solana')>()),
+vi.mock('../integration/solana/actions', async (importActual) => ({
+  ...(await importActual<typeof import('../integration/solana/actions')>()),
   ...actions,
   solanaExplorerLink: (sig: string) => `https://explorer/${sig}`,
 }));

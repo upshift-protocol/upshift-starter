@@ -1,11 +1,9 @@
 import type { IVault } from '@augustdigital/sdk';
-import type { ChainFamily, VaultsByFamily } from '../integration/vaults';
-
-const FAMILIES: Record<ChainFamily, string> = {
-  evm: 'EVM',
-  solana: 'Solana',
-  stellar: 'Stellar',
-};
+import {
+  type ChainFamily,
+  FAMILY_LABELS,
+  type VaultsByFamily,
+} from '../integration/vaults';
 const tvl = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
 
 function formatTvl(vault: IVault) {
@@ -27,11 +25,17 @@ export function VaultList({
 }) {
   return (
     <div>
-      {(Object.keys(FAMILIES) as ChainFamily[]).map((family) => (
+      {(Object.keys(FAMILY_LABELS) as ChainFamily[]).map((family) => (
         <section key={family} className="vault-family">
-          <h2>{FAMILIES[family]}</h2>
+          <h2>{FAMILY_LABELS[family]}</h2>
           {vaults[family].length === 0 ? <p>No vaults returned.</p> : null}
           <ul className="vault-rows">
+            <li className="vault-head" aria-hidden="true">
+              <span>Vault</span>
+              <span>Address</span>
+              <span>APY</span>
+              <span>TVL</span>
+            </li>
             {vaults[family].map((vault) => (
               <li key={`${vault.chainId}:${vault.address}`}>
                 <button

@@ -18,11 +18,11 @@ const actions = vi.hoisted(() => ({
   evmRequestRedeem: vi.fn(),
   evmClaim: vi.fn(),
 }));
-vi.mock('../integration/wallets/evm', () => ({
+vi.mock('../integration/evm/wallet', () => ({
   useEvmWallet: () => wallet,
 }));
-vi.mock('../integration/actions/evm', async (importActual) => ({
-  ...(await importActual<typeof import('../integration/actions/evm')>()),
+vi.mock('../integration/evm/actions', async (importActual) => ({
+  ...(await importActual<typeof import('../integration/evm/actions')>()),
   ...actions,
 }));
 

@@ -1,6 +1,6 @@
 import { act, renderHook, render } from '@testing-library/react';
 import { useConfig } from 'wagmi';
-import { EvmWalletProvider, useEvmWallet } from './evm';
+import { EvmWalletProvider, useEvmWallet } from './wallet';
 
 describe('EvmWalletProvider', () => {
   it('creates the wagmi config once per mount', () => {

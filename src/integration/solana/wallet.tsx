@@ -9,7 +9,7 @@ import {
 } from '@solana/wallet-adapter-react';
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
 import { type ReactNode, useState } from 'react';
-import { DEFAULT_RPC } from '../../config';
+import { DEFAULT_RPC } from '../config';
 
 export function SolanaWalletProvider({
   children,

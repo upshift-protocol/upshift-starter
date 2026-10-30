@@ -8,7 +8,7 @@ import {
   evmRequestRedeem,
   readEvmBalances,
   readEvmRedemptions,
-} from './evm';
+} from './actions';
 
 const VAULT = '0x80E1048eDE66ec4c364b4F22C8768fc657FF6A42';
 const WALLET = '0x1111111111111111111111111111111111111111';

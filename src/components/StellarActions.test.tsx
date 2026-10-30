@@ -21,11 +21,11 @@ const actions = vi.hoisted(() => ({
   stellarDeposit: vi.fn(),
   stellarWithdraw: vi.fn(),
 }));
-vi.mock('../integration/wallets/stellar', () => ({
+vi.mock('../integration/stellar/wallet', () => ({
   useStellarWallet: () => wallet,
 }));
-vi.mock('../integration/actions/stellar', async (importActual) => ({
-  ...(await importActual<typeof import('../integration/actions/stellar')>()),
+vi.mock('../integration/stellar/actions', async (importActual) => ({
+  ...(await importActual<typeof import('../integration/stellar/actions')>()),
   ...actions,
 }));
 

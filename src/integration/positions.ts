@@ -1,29 +1,24 @@
 import type AugustSDK from '@augustdigital/sdk';
 import type { IAddress, IVaultPosition } from '@augustdigital/sdk';
+import type { ChainFamily } from './vaults';
 
 export type PositionsSdk = Pick<AugustSDK, 'getVaultPositions'>;
 
-export type PositionFamily = 'evm' | 'solana' | 'stellar';
-
-export type ConnectedAddresses = Record<PositionFamily, string | null>;
+export type ConnectedAddresses = Record<ChainFamily, string | null>;
 
 interface PositionRow {
-  family: PositionFamily;
+  family: ChainFamily;
   position: IVaultPosition;
 }
 
 export interface PositionsResult {
   rows: PositionRow[];
-  failed: PositionFamily[];
+  failed: ChainFamily[];
 }
 
-const FAMILIES: PositionFamily[] = ['evm', 'solana', 'stellar'];
+const FAMILIES: ChainFamily[] = ['evm', 'solana', 'stellar'];
 
-function readFamily(
-  sdk: PositionsSdk,
-  family: PositionFamily,
-  address: string,
-) {
+function readFamily(sdk: PositionsSdk, family: ChainFamily, address: string) {
   switch (family) {
     case 'evm':
       return sdk.getVaultPositions({ wallet: address as IAddress });
@@ -45,9 +40,9 @@ export async function readPositions(
     ),
   );
   const rows: PositionRow[] = [];
-  const failed: PositionFamily[] = [];
+  const failed: ChainFamily[] = [];
   settled.forEach((result, index) => {
-    const family = connected[index] as PositionFamily;
+    const family = connected[index] as ChainFamily;
     if (result.status === 'rejected') failed.push(family);
     else rows.push(...result.value.map((position) => ({ family, position })));
   });

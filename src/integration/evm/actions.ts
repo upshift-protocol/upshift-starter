@@ -5,7 +5,7 @@ import {
   type IVaultAvailableRedemption,
   toNormalizedBn,
 } from '@augustdigital/sdk';
-import { depositAssetOf } from './solana';
+import { depositAssetOf } from '../vaults';
 
 export type EvmSdk = Pick<AugustSDK, 'evm' | 'getVaultAvailableRedemptions'>;
 

@@ -2,16 +2,16 @@ import type { IVault } from '@augustdigital/sdk';
 import { useEffect, useState } from 'react';
 import {
   type SolanaBalances,
-  depositAssetOf,
   normalizeBalance,
   readSolanaBalances,
   solanaDeposit,
   solanaExplorerLink,
   solanaWithdraw,
-} from '../integration/actions/solana';
+} from '../integration/solana/actions';
 import type { createSdk } from '../integration/sdk';
 import { useTxFlow } from '../integration/tx-flow';
-import { useSolanaWallet } from '../integration/wallets/solana';
+import { useSolanaWallet } from '../integration/solana/wallet';
+import { depositAssetOf } from '../integration/vaults';
 import { TxStatus } from './TxStatus';
 
 type Mode = 'deposit' | 'withdraw';

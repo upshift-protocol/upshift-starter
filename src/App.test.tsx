@@ -14,7 +14,7 @@ vi.mock('./integration/vaults', async (importActual) => ({
 vi.mock('./integration/vault-detail', () => ({ loadVaultDetail: vi.fn() }));
 vi.mock('./integration/positions', () => ({ readPositions: vi.fn() }));
 const walletState = vi.hoisted(() => ({ evm: null as string | null }));
-vi.mock('./integration/wallets/use-wallets', () => {
+vi.mock('./integration/wallets', () => {
   const wallet = (family: string, address: string | null) => ({
     family,
     address,

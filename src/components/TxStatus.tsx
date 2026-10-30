@@ -11,12 +11,12 @@ export function TxStatus({
     case 'idle':
       return null;
     case 'submitting':
-      return <p className="tx-status">Confirm in your wallet…</p>;
+      return <p className="tx-status tx-busy">Confirm in your wallet…</p>;
     case 'rejected':
       return <p className="tx-status">Signature declined. Nothing was sent.</p>;
     case 'success':
       return (
-        <p className="tx-status">
+        <p className="tx-status tx-success">
           Submitted.{' '}
           <a href={explorerLink(phase.hash)} target="_blank" rel="noreferrer">
             View on explorer

@@ -11,7 +11,7 @@ import {
   stellarDeposit,
   stellarExplorerLink,
   stellarWithdraw,
-} from './stellar';
+} from './actions';
 
 const USDC = 'CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75';
 const vault = {

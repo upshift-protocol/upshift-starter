@@ -82,7 +82,7 @@ export function VaultHistoryChart({
             type="monotone"
             dataKey="sharePrice"
             name="Share price"
-            stroke="var(--up-color-primary)"
+            stroke="var(--up-color-chart-positive)"
             dot={false}
           />
           <Line
@@ -90,7 +90,7 @@ export function VaultHistoryChart({
             type="monotone"
             dataKey="tvl"
             name="TVL"
-            stroke="var(--up-color-muted-foreground)"
+            stroke="var(--up-color-chart-tvl)"
             dot={false}
           />
         </LineChart>

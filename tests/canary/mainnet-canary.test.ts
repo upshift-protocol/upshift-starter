@@ -1,10 +1,10 @@
 import * as sdkModule from '@augustdigital/sdk';
 import { type IAddress, Solana, Stellar } from '@augustdigital/sdk';
 import { describe, expect, it } from 'vitest';
-import { FEATURED_VAULTS } from '../../src/config';
-import { resolveSolanaTarget } from '../../src/integration/actions/solana';
 import { buildSdkConfig, resolveSdkClass } from '../../src/integration/sdk';
+import { resolveSolanaTarget } from '../../src/integration/solana/actions';
 import { familyOf } from '../../src/integration/vaults';
+import { FEATURED_VAULTS } from './featured-vaults';
 
 const STELLAR_HOLDER =
   'GAHBXQUD5ALLP33GEE3ZUTGTPMC74CZVBQHKNGP2UOR763AR4W3V3Y7I';

@@ -1,5 +1,5 @@
 import * as sdkModule from '@augustdigital/sdk';
-import { DEFAULT_RPC, DEV_API_PROXY_PATH, type StarterEnv } from '../config';
+import { DEFAULT_RPC, DEV_API_PROXY_PATH, type StarterEnv } from './config';
 
 type AugustSDKClass = typeof sdkModule.default;
 type SdkConfig = ConstructorParameters<AugustSDKClass>[0];

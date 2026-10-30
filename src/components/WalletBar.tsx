@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import type { WalletSummary } from '../integration/wallets/use-wallets';
-
-const LABELS = { evm: 'EVM', solana: 'Solana', stellar: 'Stellar' } as const;
+import { FAMILY_LABELS } from '../integration/vaults';
+import type { WalletSummary } from '../integration/wallets';
 
 function short(address: string) {
   return address.length > 14
@@ -24,13 +23,15 @@ function WalletButton({ wallet }: { wallet: WalletSummary }) {
     }
   };
   return (
-    <div className="wallet">
-      <span className="wallet-label">{LABELS[wallet.family]}</span>
-      <button type="button" onClick={toggle} disabled={busy}>
-        {wallet.connected && wallet.address
-          ? `Disconnect ${short(wallet.address)}`
-          : 'Connect'}
-      </button>
+    <div className={wallet.connected ? 'wallet wallet-connected' : 'wallet'}>
+      <span className="wallet-chip">
+        <span className="wallet-label">{FAMILY_LABELS[wallet.family]}</span>
+        <button type="button" onClick={toggle} disabled={busy}>
+          {wallet.connected && wallet.address
+            ? `Disconnect ${short(wallet.address)}`
+            : 'Connect'}
+        </button>
+      </span>
       {error ? (
         <span role="alert" className="wallet-error">
           {error}

@@ -13,12 +13,12 @@ import {
   loadVaultDetail,
 } from './integration/vault-detail';
 import {
+  type ChainFamily,
   type VaultsByFamily,
   familyOf,
   listVaultsByFamily,
 } from './integration/vaults';
-import type { PositionFamily } from './integration/positions';
-import { useWallets } from './integration/wallets/use-wallets';
+import { useWallets } from './integration/wallets';
 
 type LoadState<T> =
   | { status: 'loading' }
@@ -69,7 +69,7 @@ export function App() {
     };
   }, [selected]);
 
-  const openPosition = (family: PositionFamily, address: string) => {
+  const openPosition = (family: ChainFamily, address: string) => {
     if (vaults.status !== 'ready') return undefined;
     const vault = vaults.data[family].find(
       (v) =>
@@ -81,12 +81,14 @@ export function App() {
 
   return (
     <main className="app">
-      <h1>Upshift SDK Starter</h1>
+      <header className="app-header">
+        <h1>Upshift SDK Starter</h1>
+        <WalletBar wallets={wallets} />
+      </header>
       <p className="app-banner">
         Mainnet. Real funds. Connecting a wallet does not move anything;
         deposits and withdrawals ask for a signature first.
       </p>
-      <WalletBar wallets={wallets} />
       <Positions
         sdk={sdk}
         addresses={{

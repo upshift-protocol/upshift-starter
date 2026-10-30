@@ -1,22 +1,16 @@
 import { useEffect, useState } from 'react';
 import {
   type ConnectedAddresses,
-  type PositionFamily,
   type PositionsResult,
   readPositions,
 } from '../integration/positions';
 import type { createSdk } from '../integration/sdk';
+import { type ChainFamily, FAMILY_LABELS } from '../integration/vaults';
 
 type State =
   | { status: 'idle' }
   | { status: 'loading' }
   | { status: 'ready'; result: PositionsResult };
-
-const FAMILY_NAME: Record<PositionFamily, string> = {
-  evm: 'EVM',
-  solana: 'Solana',
-  stellar: 'Stellar',
-};
 
 export function Positions({
   sdk,
@@ -25,7 +19,7 @@ export function Positions({
 }: {
   sdk: ReturnType<typeof createSdk>;
   addresses: ConnectedAddresses;
-  onOpen?: (family: PositionFamily, vault: string) => (() => void) | undefined;
+  onOpen?: (family: ChainFamily, vault: string) => (() => void) | undefined;
 }) {
   const [state, setState] = useState<State>({ status: 'idle' });
   const [retries, setRetries] = useState(0);
@@ -57,7 +51,7 @@ export function Positions({
       {state.status === 'loading' ? <p>Loading positions…</p> : null}
       {result && result.failed.length > 0 ? (
         <p role="alert">
-          Could not read {result.failed.map((f) => FAMILY_NAME[f]).join(', ')}{' '}
+          Could not read {result.failed.map((f) => FAMILY_LABELS[f]).join(', ')}{' '}
           positions.{' '}
           <button
             type="button"
@@ -72,7 +66,13 @@ export function Positions({
         <p>No positions for the connected wallets.</p>
       ) : null}
       {result && result.rows.length > 0 ? (
-        <ul className="vault-rows">
+        <ul className="vault-rows position-rows">
+          <li className="vault-head" aria-hidden="true">
+            <span>Vault</span>
+            <span>Status</span>
+            <span>Balance</span>
+            <span>Redeemable</span>
+          </li>
           {result.rows.map(({ family, position: p }) => {
             const open = onOpen?.(family, p.vault);
             return (

@@ -9,16 +9,16 @@ import {
   evmRequestRedeem,
   readEvmBalances,
   readEvmRedemptions,
-} from '../integration/actions/evm';
-import { depositAssetOf } from '../integration/actions/solana';
+} from '../integration/evm/actions';
 import {
   evmChainOf,
   evmExplorerLink,
   parseAmount,
-} from '../integration/evm-chains';
+} from '../integration/evm/chains';
 import type { createSdk } from '../integration/sdk';
 import { useTxFlow } from '../integration/tx-flow';
-import { useEvmWallet } from '../integration/wallets/evm';
+import { useEvmWallet } from '../integration/evm/wallet';
+import { depositAssetOf } from '../integration/vaults';
 import { TxStatus } from './TxStatus';
 
 type Mode = 'deposit' | 'withdraw' | 'claim';

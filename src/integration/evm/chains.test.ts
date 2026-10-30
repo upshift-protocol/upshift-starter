@@ -1,9 +1,4 @@
-import {
-  EVM_CHAINS,
-  evmChainOf,
-  evmExplorerLink,
-  parseAmount,
-} from './evm-chains';
+import { EVM_CHAINS, evmChainOf, evmExplorerLink, parseAmount } from './chains';
 
 describe('evmChainOf', () => {
   it('knows the chains the wallet config signs on, and no others', () => {

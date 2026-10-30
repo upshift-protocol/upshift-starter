@@ -1,6 +1,5 @@
 import { type IVault, toNormalizedBn } from '@augustdigital/sdk';
 import { useEffect, useState } from 'react';
-import { depositAssetOf } from '../integration/actions/solana';
 import {
   type StellarAccount,
   type StellarBalances,
@@ -11,10 +10,11 @@ import {
   stellarDeposit,
   stellarExplorerLink,
   stellarWithdraw,
-} from '../integration/actions/stellar';
+} from '../integration/stellar/actions';
 import type { createSdk } from '../integration/sdk';
 import { useTxFlow } from '../integration/tx-flow';
-import { useStellarWallet } from '../integration/wallets/stellar';
+import { useStellarWallet } from '../integration/stellar/wallet';
+import { depositAssetOf } from '../integration/vaults';
 import { TxStatus } from './TxStatus';
 
 type Mode = 'deposit' | 'withdraw';
@@ -102,7 +102,7 @@ export function StellarActions({
       ? depositMax(balances?.deposit ?? null, asset.address, account)
       : shareBalance;
   const unfunded = account.funded === false;
-  const sharesUntrusted = mode === 'withdraw' && (!shares || !shares.trusted);
+  const sharesUntrusted = mode === 'withdraw' && !shares?.trusted;
   const overMax = max !== null && Number(amount) > Number(max);
   const canSubmit =
     wallet.connected &&

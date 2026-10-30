@@ -1,7 +1,8 @@
-import type { ChainFamily } from '../vaults';
-import { useEvmWallet } from './evm';
-import { useSolanaWallet } from './solana';
-import { useStellarWallet } from './stellar';
+import type { ReactNode } from 'react';
+import { EvmWalletProvider, useEvmWallet } from './evm/wallet';
+import { SolanaWalletProvider, useSolanaWallet } from './solana/wallet';
+import { StellarWalletProvider, useStellarWallet } from './stellar/wallet';
+import type { ChainFamily } from './vaults';
 
 export interface WalletSummary {
   family: ChainFamily;
@@ -9,6 +10,22 @@ export interface WalletSummary {
   connected: boolean;
   connect: () => Promise<void>;
   disconnect: () => void | Promise<void>;
+}
+
+export function WalletProviders({
+  children,
+  rpc,
+}: {
+  children: ReactNode;
+  rpc?: { ethereum?: string; solana?: string };
+}) {
+  return (
+    <EvmWalletProvider rpcUrl={rpc?.ethereum}>
+      <SolanaWalletProvider rpcUrl={rpc?.solana}>
+        <StellarWalletProvider>{children}</StellarWalletProvider>
+      </SolanaWalletProvider>
+    </EvmWalletProvider>
+  );
 }
 
 export function useWallets(): Record<ChainFamily, WalletSummary> {

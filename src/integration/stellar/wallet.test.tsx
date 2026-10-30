@@ -4,7 +4,7 @@ import {
   STELLAR_STORAGE_KEY,
   StellarWalletProvider,
   useStellarWallet,
-} from './stellar';
+} from './wallet';
 
 const freighter = vi.hoisted(() => ({
   requestAccess: vi.fn(),

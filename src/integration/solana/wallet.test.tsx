@@ -1,6 +1,6 @@
 import { WalletNotSelectedError } from '@solana/wallet-adapter-react';
 import { act, renderHook } from '@testing-library/react';
-import { useSolanaWallet } from './solana';
+import { useSolanaWallet } from './wallet';
 
 const adapter = vi.hoisted(() => ({ useWallet: vi.fn() }));
 

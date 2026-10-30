@@ -5,6 +5,7 @@ import {
   type Transaction,
   type VersionedTransaction,
 } from '@solana/web3.js';
+import { depositAssetOf } from '../vaults';
 
 export interface SolanaSigner {
   publicKey: PublicKey;
@@ -29,12 +30,6 @@ export interface SolanaBalances {
 }
 
 export type SolanaSdk = Pick<AugustSDK, 'solana'>;
-
-export function depositAssetOf(vault: Pick<IVault, 'depositAssets'>) {
-  const asset = vault.depositAssets[0];
-  if (!asset) throw new Error('Vault has no deposit asset.');
-  return asset;
-}
 
 export function resolveSolanaTarget(
   vault: Pick<IVault, 'address' | 'programId'>,

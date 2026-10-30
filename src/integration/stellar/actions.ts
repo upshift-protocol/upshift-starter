@@ -4,7 +4,7 @@ import {
   type IVault,
   toNormalizedBn,
 } from '@augustdigital/sdk';
-import { depositAssetOf } from './solana';
+import { depositAssetOf } from '../vaults';
 
 export type StellarSdk = Pick<AugustSDK, 'stellar'>;
 

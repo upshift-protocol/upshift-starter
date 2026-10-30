@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import { WalletProviders } from './integration/wallets/providers';
+import { WalletProviders } from './integration/wallets';
 import { followColorScheme } from './theme';
 import './vendor/variables.css';
 import './styles.css';

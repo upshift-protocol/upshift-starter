@@ -10,8 +10,8 @@ import {
   useSwitchChain,
   useWalletClient,
 } from 'wagmi';
-import { DEFAULT_RPC } from '../../config';
-import { EVM_CHAINS } from '../evm-chains';
+import { DEFAULT_RPC } from '../config';
+import { EVM_CHAINS } from './chains';
 
 function createEvmConfig(rpcUrl: string = DEFAULT_RPC.ethereum) {
   return createConfig({
