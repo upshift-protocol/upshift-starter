@@ -1,0 +1,227 @@
+/**
+ * @upshift/tokens — raw design tokens as CSS custom properties.
+ *
+ * Mode-independent tokens (brand, grey, data-viz, typography, radii, shadow,
+ * layout) live on :root. Semantic tokens default to the light theme on :root
+ * and are overridden under [data-theme='dark'].
+ */
+:root {
+  color-scheme: light;
+
+  /* Brand */
+  --up-brand-lime: #00ff7e;
+  --up-brand-leaf: #00b55a;
+  --up-brand-sky: #2196f3;
+  --up-brand-lemon: #fcff00;
+  --up-brand-lemon-variant: #dfe200;
+  --up-brand-cherry: #ec407a;
+  --up-brand-space: #18206e;
+  --up-brand-yellow-800: #e9b508;
+
+  /* Grey scale (900 = black … 100 = white, 50 = porcelain canvas) */
+  --up-grey-900: #000000;
+  --up-grey-800: #121212;
+  --up-grey-700: #141414;
+  --up-grey-600: #272a2a;
+  --up-grey-500: #3b4040;
+  --up-grey-400: #6e7777;
+  --up-grey-300: #949e9e;
+  --up-grey-200: #e7e7e7;
+  --up-grey-100: #ffffff;
+  --up-grey-50: #f4f6fa;
+
+  /* Data visualization */
+  --up-viz-periwinkle: #88b4f5;
+  --up-viz-amber: #ffc107;
+  --up-viz-orange: #ff9800;
+  --up-viz-blue: #2196f3;
+  --up-viz-green: #4caf50;
+  --up-viz-red: #f44336;
+  --up-viz-purple: #9c27b0;
+  --up-viz-light-blue: #03a9f4;
+  --up-viz-blue-grey: #607d8b;
+  --up-viz-yellow: #ffeb3b;
+  --up-viz-pink: #e91e63;
+  --up-viz-cyan: #00bcd4;
+  --up-viz-lime: #cddc39;
+
+  /* Typography. `--font-visia-pro` is set by a Next app via next/font; when it
+     is absent the var() fallback keeps the stack valid and uses the @font-face
+     'Visia Pro' from @upshift/tokens/fonts.css. */
+  --up-font-sans: var(--font-visia-pro, 'Visia Pro'), ui-sans-serif, system-ui,
+    -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --up-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace;
+
+  --up-weight-light: 200;
+  --up-weight-regular: 400;
+  --up-weight-semibold: 600;
+  --up-weight-bold: 700;
+  --up-weight-extrabold: 800;
+  --up-weight-black: 800;
+  --up-weight-body: 800;
+  --up-weight-heading: 800;
+
+  --up-text-display-lg: 3.25rem;
+  --up-text-display-md: 2.5rem;
+  --up-text-display-sm: 1.75rem;
+  --up-text-xl: 1.5rem;
+  --up-text-lg: 1.25rem;
+  --up-text-md: 1.0625rem;
+  --up-text-caption: 1rem;
+  --up-text-sm: 0.875rem;
+  --up-text-xs: 0.6875rem;
+
+  /* Radii */
+  --up-radius-sm: 4px;
+  --up-radius-md: 8px;
+  --up-radius-lg: 12px;
+  --up-radius-xl: 16px;
+  --up-radius-2xl: 24px;
+  --up-radius-pill: 9999px;
+  --up-radius-card: 24px;
+  --up-radius-button: 9999px;
+
+  /* Shadow */
+  --up-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --up-shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.12);
+  --up-shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.2);
+
+  /* Layout */
+  --up-layout-header-height: 115px;
+  --up-layout-wallet-drawer-width: 386px;
+  --up-layout-container-wide: 105rem;
+  --up-layout-container-content: 100rem;
+
+  /* Semantic — light defaults */
+  --up-color-primary: var(--up-brand-leaf);
+  --up-color-primary-foreground: var(--up-grey-100);
+  --up-color-secondary: var(--up-brand-lemon-variant);
+  --up-color-secondary-foreground: var(--up-grey-700);
+  --up-color-success: var(--up-brand-leaf);
+  --up-color-error: var(--up-brand-cherry);
+  --up-color-warning: var(--up-brand-yellow-800);
+  /* upshift-app's informational blue (#09F), mode-independent like chart-tvl. */
+  --up-color-info: #0099ff;
+  --up-color-background: var(--up-grey-50);
+  --up-color-surface: var(--up-grey-100);
+  --up-color-surface-muted: var(--up-grey-200);
+  --up-color-foreground: var(--up-grey-700);
+  --up-color-muted-foreground: var(--up-grey-500);
+  --up-color-disabled-foreground: var(--up-grey-400);
+  --up-color-border: var(--up-grey-300);
+  --up-color-border-muted: var(--up-grey-200);
+  --up-color-ring: var(--up-brand-leaf);
+
+  /* Surface / border steps above the base pair. `surface-tertiary` is the
+     hover ON TOP of a surface-muted fill; `border-strong` is the secondary
+     emphasis border (an outline button next to a filled one). Both are
+     aliases of existing greys — no new colors enter the palette. */
+  --up-color-surface-tertiary: var(--up-grey-300);
+  --up-color-border-strong: var(--up-grey-400);
+
+  /* Directional value roles. Distinct from success/error on purpose: those
+     report the outcome of an ACTION ("deposit confirmed", "tx reverted"),
+     these describe a VALUE ("up 2.4%", "health factor at risk"). They alias
+     success/error today; a product with its own gain/loss hues overrides
+     them without touching the action colors. */
+  --up-color-positive: var(--up-color-success);
+  --up-color-negative: var(--up-color-error);
+
+  /* Charts. Axis label color is theme-dependent; grid reuses border-muted.
+     The TVL series blue is mode-independent. */
+  --up-color-chart-axis: var(--up-grey-400);
+  --up-color-chart-grid: var(--up-color-border-muted);
+  --up-color-chart-tvl: #0099ff;
+  /* Value series stroke. Deliberately NOT --up-color-primary: at chart scale
+     (a stroke the width of the panel, its gradient wash, the active dot and
+     the tooltip's value text) the CTA green reads far too hot, and in dark
+     mode the tooltip is an INVERTED near-white slab where the bright end is
+     nearly invisible. Leaf is that green one step down, in both modes. */
+  --up-color-chart-positive: var(--up-brand-leaf);
+
+  /* Graph-paper texture behind dashboard canvases — see `.bg-grid`. Derived
+     from the text color so it tracks the theme instead of shipping two rgba
+     literals. */
+  --up-color-grid-line: color-mix(
+    in srgb,
+    var(--up-color-foreground) 2%,
+    transparent
+  );
+
+  /* Ordered categorical ramp for chart series, allocation slices and legends —
+     hue means "which one", never "good/bad". Aliases of the --up-viz-*
+     primitives; this fixes the ORDER, which is the part that drifts when each
+     app keeps its own literal array. */
+  --up-color-dv-1: var(--up-viz-periwinkle);
+  --up-color-dv-2: var(--up-viz-green);
+  --up-color-dv-3: var(--up-viz-amber);
+  --up-color-dv-4: var(--up-viz-blue);
+  --up-color-dv-5: var(--up-viz-red);
+
+  /* Resting elevation for a card sitting on the page canvas. Light separates
+     by shadow, dark by border — so this is `none` under [data-theme='dark'],
+     and a card should carry BOTH this and its border. */
+  --up-shadow-card: var(--up-shadow-sm);
+
+  /* Home-page accents (flip under [data-theme='dark']). Both themes carry a
+     green→blue→purple rainbow stat border; dark additionally gets the underglow +
+     gold spotlight treatment. The border is oversized (background-size 200%) at the
+     use site so `animate-stat-border` can drift it. Light keeps no glow. */
+  --up-gradient-stat-border: linear-gradient(
+    247deg,
+    #7c4dff 4.67%,
+    #2196f3 50%,
+    #00b55a 96.93%
+  );
+  --up-gradient-stat-glow: none;
+  --up-gradient-spotlight-border: linear-gradient(
+    var(--up-color-border),
+    var(--up-color-border)
+  );
+  --up-color-spotlight-surface: var(--up-color-surface);
+  --up-color-spotlight-gold: #9e753d;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --up-color-primary: var(--up-brand-lime);
+  --up-color-primary-foreground: var(--up-grey-800);
+  --up-color-secondary: var(--up-brand-lemon);
+  --up-color-secondary-foreground: var(--up-grey-800);
+  --up-color-success: var(--up-brand-lime);
+  --up-color-error: var(--up-brand-cherry);
+  --up-color-warning: var(--up-brand-lemon);
+  --up-color-info: #0099ff;
+  --up-color-background: var(--up-grey-900);
+  --up-color-surface: var(--up-grey-800);
+  --up-color-surface-muted: var(--up-grey-600);
+  --up-color-foreground: var(--up-grey-100);
+  --up-color-muted-foreground: var(--up-grey-300);
+  --up-color-disabled-foreground: var(--up-grey-500);
+  --up-color-border: var(--up-grey-500);
+  --up-color-border-muted: var(--up-grey-600);
+  --up-color-ring: var(--up-brand-lime);
+
+  --up-color-chart-axis: var(--up-grey-300);
+
+  /* Surface / border steps. Both invert direction against light: the border
+     emphasis goes LIGHTER on dark, not darker. */
+  --up-color-surface-tertiary: var(--up-grey-500);
+  --up-color-border-strong: var(--up-grey-400);
+
+  /* `--up-color-positive` / `--up-color-negative` / `--up-color-dv-*` /
+     `--up-color-grid-line` need no dark override — they alias tokens that
+     already flip (success/error/foreground) or are mode-independent (viz). */
+
+  /* Dark surfaces separate by border, not shadow. */
+  --up-shadow-card: none;
+
+  /* Home-page accents (rainbow stat border, gold spotlight). */
+  --up-gradient-stat-border: linear-gradient(247deg, #5865f2 4.67%, #00ff7e 96.93%);
+  --up-gradient-stat-glow: linear-gradient(247deg, #00ff7e 4.67%, #5865f2 96.93%);
+  --up-gradient-spotlight-border: linear-gradient(90deg, #f1d3aa 0%, #9e743c 100%);
+  --up-color-spotlight-surface: #1c1b18;
+  --up-color-spotlight-gold: #f1d3aa;
+}

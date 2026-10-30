@@ -1,0 +1,31 @@
+overrides:
+  'axios@<1.20.0': '1.20.0'
+  browserslist: '4.28.8'
+  'ws@>=8.0.0 <8.21.0': '8.21.0'
+  'rpc-websockets>uuid': '^11.1.1'
+  'minimatch@9>brace-expansion': '2.1.6'
+  'minimatch@10>brace-expansion': '5.0.11'
+  'fast-uri': '3.1.7'
+  nanoid: '3.3.18'
+  postcss: '8.5.18'
+  'next>sharp': '0.35.5'
+  'js-yaml@3': '3.15.2'
+  'js-yaml@4': '4.3.2'
+  'socket.io-parser': '4.2.7'
+  'browserslist@<4.28.7': '4.28.7'
+  toml: '5.0.1'
+  'smol-toml@<1.7.1': '^1.7.1'
+  '@openzeppelin/contracts-upgradeable': '4.9.6'
+  '@openzeppelin/contracts-upgradeable-4.7.3': 'npm:@openzeppelin/contracts-upgradeable@4.9.6'
+  'source-map-js@<1.2.2': '1.2.2'
+  'shell-quote@<1.11.0': '1.11.0'
+  'tinypool@<2.1.2': '2.1.2'
+  'follow-redirects@<1.16.1': '1.16.1'
+  'vite@>=7 <7.3.7': '7.3.7'
+  'zod@>=4.0.0 <4.6.6': '^4.6.6'
+
+minimumReleaseAge: 4320
+
+minimumReleaseAgeExclude:
+  - '@augustdigital/*'
+  - '@augustdigitalcanary/*'

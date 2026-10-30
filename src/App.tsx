@@ -1,87 +1,147 @@
+import type { IVault } from '@augustdigital/sdk';
 import { useEffect, useState } from 'react';
-import type { IVault, IHistoricalTimeseriesResponse } from '@augustdigital/sdk';
-import { VaultHeader } from './components/VaultHeader';
-import { VaultStats } from './components/VaultStats';
-import { VaultInfo } from './components/VaultInfo';
-import { HistoricalChart } from './components/HistoricalChart';
-import { VaultActivity } from './components/VaultActivity';
-import { LoadingState } from './components/LoadingState';
-import { ErrorState } from './components/ErrorState';
-import { initSDK, fetchVaultActivity } from './sdk';
-import type { IVaultActivityItem } from './sdk';
-import './App.css';
+import { VaultDetail } from './components/VaultDetail';
+import { EvmActions } from './components/EvmActions';
+import { Positions } from './components/Positions';
+import { SolanaActions } from './components/SolanaActions';
+import { StellarActions } from './components/StellarActions';
+import { VaultList } from './components/VaultList';
+import { WalletBar } from './components/WalletBar';
+import { createSdk } from './integration/sdk';
+import {
+  type VaultDetail as Detail,
+  loadVaultDetail,
+} from './integration/vault-detail';
+import {
+  type VaultsByFamily,
+  familyOf,
+  listVaultsByFamily,
+} from './integration/vaults';
+import type { PositionFamily } from './integration/positions';
+import { useWallets } from './integration/wallets/use-wallets';
 
-// --- Configuration ---
-// The Sentora USD vault on Ethereum mainnet
-const VAULT_ADDRESS = '0x74aD2F789Ed583DBd141bbdafC673fE1F033718b';
+type LoadState<T> =
+  | { status: 'loading' }
+  | { status: 'error'; message: string }
+  | { status: 'ready'; data: T };
 
-function App() {
-  const [vault, setVault] = useState<IVault | null>(null);
-  const [timeseries, setTimeseries] =
-    useState<IHistoricalTimeseriesResponse | null>(null);
-  const [activity, setActivity] = useState<IVaultActivityItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  //no-op
-  useEffect(() => {
-    async function fetchVaultData() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const sdk = await initSDK();
-
-        // Fetch vault data and historical timeseries (critical)
-        const [vaultData, timeseriesData] = await Promise.all([
-          sdk.getVault({
-            vault: VAULT_ADDRESS as `0x${string}`,
-            loadSnapshots: true,
-          }),
-          sdk.getVaultHistoricalTimeseries({
-            vault: VAULT_ADDRESS as `0x${string}`,
-            nDays: 90,
-          }),
-        ]);
-
-        setVault(vaultData);
-        setTimeseries(timeseriesData);
-
-        // Fetch activity separately so subgraph issues don't block the page
-        fetchVaultActivity(VAULT_ADDRESS)
-          .then(setActivity)
-          .catch((err) => console.warn('Activity fetch failed:', err));
-      } catch (err) {
-        console.error('Failed to fetch vault data:', err);
-        setError(
-          err instanceof Error ? err.message : 'Failed to fetch vault data',
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchVaultData();
-  }, []);
-
-  if (loading) return <LoadingState />;
-  if (error) return <ErrorState message={error} />;
-  if (!vault) return <ErrorState message="No vault data available" />;
-
-  return (
-    <div className="app">
-      <header className="app-header">
-        <h1 className="app-title">August SDK Example</h1>
-        <span className="app-subtitle">Vault Detail View</span>
-      </header>
-
-      <VaultHeader vault={vault} />
-      <VaultStats vault={vault} />
-      <VaultInfo vault={vault} />
-      {timeseries && <HistoricalChart timeseries={timeseries} />}
-      <VaultActivity activity={activity} />
-    </div>
-  );
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
 }
 
-export default App;
+const sdk = createSdk();
+
+export function App() {
+  const [vaults, setVaults] = useState<LoadState<VaultsByFamily>>({
+    status: 'loading',
+  });
+  const [selected, setSelected] = useState<IVault | null>(null);
+  const [detail, setDetail] = useState<LoadState<Detail>>({
+    status: 'loading',
+  });
+  const wallets = useWallets();
+
+  useEffect(() => {
+    let cancelled = false;
+    listVaultsByFamily(sdk).then(
+      (data) => cancelled || setVaults({ status: 'ready', data }),
+      (error: unknown) =>
+        cancelled ||
+        setVaults({ status: 'error', message: errorMessage(error) }),
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selected) return;
+    let cancelled = false;
+    setDetail({ status: 'loading' });
+    loadVaultDetail(sdk, selected).then(
+      (data) => cancelled || setDetail({ status: 'ready', data }),
+      (error: unknown) =>
+        cancelled ||
+        setDetail({ status: 'error', message: errorMessage(error) }),
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [selected]);
+
+  const openPosition = (family: PositionFamily, address: string) => {
+    if (vaults.status !== 'ready') return undefined;
+    const vault = vaults.data[family].find(
+      (v) =>
+        v.address === address ||
+        (family === 'evm' && v.address.toLowerCase() === address.toLowerCase()),
+    );
+    return vault ? () => setSelected(vault) : undefined;
+  };
+
+  return (
+    <main className="app">
+      <h1>Upshift SDK Starter</h1>
+      <p className="app-banner">
+        Mainnet. Real funds. Connecting a wallet does not move anything;
+        deposits and withdrawals ask for a signature first.
+      </p>
+      <WalletBar wallets={wallets} />
+      <Positions
+        sdk={sdk}
+        addresses={{
+          evm: wallets.evm.address,
+          solana: wallets.solana.address,
+          stellar: wallets.stellar.address,
+        }}
+        onOpen={openPosition}
+      />
+      {selected ? (
+        <>
+          {detail.status !== 'ready' ? (
+            <button
+              type="button"
+              className="link-button"
+              onClick={() => setSelected(null)}
+            >
+              ← All vaults
+            </button>
+          ) : null}
+          {detail.status === 'loading' ? <p>Loading {selected.name}…</p> : null}
+          {detail.status === 'error' ? (
+            <p role="alert">{detail.message}</p>
+          ) : null}
+          {detail.status === 'ready' ? (
+            <>
+              <VaultDetail
+                vault={detail.data.vault}
+                history={detail.data.history}
+                historyError={detail.data.historyError}
+                onBack={() => setSelected(null)}
+              />
+              {familyOf(detail.data.vault.chainId) === 'evm' ? (
+                <EvmActions sdk={sdk} vault={detail.data.vault} />
+              ) : null}
+              {familyOf(detail.data.vault.chainId) === 'solana' ? (
+                <SolanaActions sdk={sdk} vault={detail.data.vault} />
+              ) : null}
+              {familyOf(detail.data.vault.chainId) === 'stellar' ? (
+                <StellarActions sdk={sdk} vault={detail.data.vault} />
+              ) : null}
+            </>
+          ) : null}
+        </>
+      ) : (
+        <>
+          {vaults.status === 'loading' ? <p>Loading vaults…</p> : null}
+          {vaults.status === 'error' ? (
+            <p role="alert">{vaults.message}</p>
+          ) : null}
+          {vaults.status === 'ready' ? (
+            <VaultList vaults={vaults.data} onSelect={setSelected} />
+          ) : null}
+        </>
+      )}
+    </main>
+  );
+}

@@ -1,128 +1,102 @@
-# August SDK Example App
+> **Read-only mirror.** This repository is published automatically from `apps/starter` in the private `upshift-protocol/upshift-frontends` monorepo. Open issues here; changes land upstream.
 
-A working example showing how to use `@augustdigital/sdk` to fetch and display Upshift vault data -- TVL, APY, historical charts, and deposit/withdrawal activity.
+# Upshift SDK starter
 
-## Prerequisites
+A three-chain reference integration on `@augustdigital/sdk`: EVM, Solana and Stellar vaults in one Vite + React app.
 
-- Node.js 18+
-- [pnpm](https://pnpm.io/) (or npm/yarn)
+Mainnet only. Real funds. Vault reads work with no wallet and no API keys. Solana balances and Solana writes also need a Solana RPC that allows `getTokenAccountsByOwner`, which free public endpoints do not (see `VITE_RPC_SOLANA`). Every write asks the wallet for a signature first.
 
-## API Keys
+Full walkthrough: [Build a three-chain vault app](https://docs.upshift.finance/sdk/three-chain-app).
 
-You need to provide your own keys via a `.env` file at the project root. Copy the template and fill in your values:
+## Run
 
-```bash
-cp .env.example .env
-```
-
-### Required keys
-
-| Variable | What it's for | How to get it |
-|---|---|---|
-| `VITE_ALCHEMY_API_KEY` | Ethereum RPC provider (read calls) | Sign up at [alchemy.com](https://www.alchemy.com/) -- **you must provide your own key** |
-| `VITE_AUGUST_API_KEY` | August API authentication | **Contact the August team** -- requires an August subaccount |
-| `VITE_SUBGRAPH_API_KEY` | The Graph subgraph queries | **Contact the August team** |
-| `VITE_GOLDSKY_API_KEY` | Goldsky subgraph for vault activity | **Contact the August team** -- we provide access to our subgraphs |
-
-> **Alchemy**: You are responsible for creating your own Alchemy account and API key. A free-tier key is sufficient for development.
->
-> **August API key**: If you have an August subaccount with us and need an API key, reach out to the August team directly.
->
-> **Goldsky API token**: If you need a Goldsky API token, ask the August team -- we will grant you access to the relevant subgraphs.
-
-### `.env` format
-
-```env
-VITE_ALCHEMY_API_KEY=your_alchemy_key
-VITE_AUGUST_API_KEY=your_august_key
-VITE_SUBGRAPH_API_KEY=your_subgraph_key
-VITE_GOLDSKY_API_KEY=your_goldsky_key
-```
-
-## Install & Run
+Run these from `apps/starter` in the monorepo, or from the repository root in the mirror.
 
 ```bash
-# Install dependencies (also builds the local SDK link)
 pnpm install
-
-# Start dev server
-pnpm dev
+pnpm dev          # http://localhost:5173
+pnpm build        # dist/
+pnpm test         # unit + component tests
+pnpm test:canary  # read-only checks against the real mainnet vaults
 ```
 
-The app will be available at `http://localhost:5173`.
+## Environment
 
-## What the example demonstrates
+Every variable is optional.
 
-### SDK initialization (`src/sdk.ts`)
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `VITE_RPC_ETHEREUM` | `https://ethereum-rpc.publicnode.com` | Ethereum mainnet JSON-RPC |
+| `VITE_RPC_SOLANA` | `https://solana-rpc.publicnode.com` | Solana mainnet JSON-RPC. The default serves vault reads only: it rejects `getTokenAccountsByOwner`, which the SDK uses for Solana balances and deposits. Set a keyed RPC (Helius, Alchemy, QuickNode) restricted to your origin. `api.mainnet-beta.solana.com` returns 403 to browser origins. |
 
-```ts
-import AugustSDK from '@augustdigital/sdk';
+## Layout
 
-const sdk = new AugustSDK({
-  providers: {
-    1: `https://eth-mainnet.g.alchemy.com/v2/${YOUR_ALCHEMY_KEY}`,
-  },
-  appName: 'example-app',
-  keys: {
-    august: YOUR_AUGUST_API_KEY,
-    graph: YOUR_SUBGRAPH_API_KEY,
-  },
-});
-```
+- `src/integration/` imports only `@augustdigital/sdk`, `wagmi`, `viem`, `@solana/wallet-adapter-*`, `@solana/web3.js` and `@stellar/freighter-api`. Copy this directory into your own app.
+  - `sdk.ts` constructs the one SDK instance.
+  - `vaults.ts`, `vault-detail.ts`, `positions.ts` are the reads.
+  - `wallets/` holds one provider per chain family and `use-wallets.ts` normalizes them.
+  - `actions/{evm,solana,stellar}.ts` are the writes. `tx-flow.ts` is the shared state machine and error classification.
+- `src/components/` is presentation. It imports SDK types only.
+- `src/config.ts` holds default RPCs, the dev proxy path and the featured vault ids the canary checks.
+- `tests/canary/` runs read-only against the deployed vaults, nightly in CI, never as a PR gate.
 
-The `providers` object maps chain IDs to RPC URLs. Chain `1` is Ethereum mainnet.
+## SDK construction (`src/integration/sdk.ts`)
 
-### Fetching vault data
+| Setting | Value | Why |
+| --- | --- | --- |
+| `appName` | `upshift-starter` | Tags this app's telemetry. Use your own slug. |
+| `providers` | `{ 1: <rpc> }` | Chain 1 only. `getVaults` drops EVM vaults on chains with no provider. |
+| `solana` | `{ rpcUrl, network: 'mainnet-beta', commitment: 'confirmed' }` | Set Solana here, not through `providers[-1]`, or `commitment` stays at `finalized`. |
+| `stellar` | `{ network: 'mainnet' }` | The SDK's built-in public Soroban endpoints. |
+| `monitoring.env` | `DEV` | Keeps this demo out of production telemetry. A real integration leaves the `PROD` default. |
+| `monitoring.curatorAlerts` | `{ enabled: false }` | A failed Stellar redeem would otherwise page the vault's curator. A real integration keeps alerts on. |
+| `analytics.enabled` | `false` in CI and preview builds, `true` in local `pnpm dev` | Same reason as `env`, except local dev mirrors production. |
+| `keys` | omitted | Vault reads need no August key. |
+| `publicApiBaseUrl` | dev only: `<origin>/api/august` | See CORS below. |
 
-```ts
-// Get vault metadata + snapshots
-const vault = await sdk.getVault({
-  vault: '0x80E1048eDE66ec4c364b4F22C8768fc657FF6A42',
-  options: { loadSnapshots: true },
-});
+The package is CommonJS. Vite's dev server and its production build expose the default export differently, so `resolveSdkClass` unwraps `default.default`, `default` or the module itself. `build.commonjsOptions.defaultIsModuleExports` and `define.global` in `vite.config.ts` are part of the same interop and are required.
 
-// Get 90 days of historical timeseries (TVL, APY, share price)
-const timeseries = await sdk.getVaultHistoricalTimeseries({
-  vault: '0x80E1048eDE66ec4c364b4F22C8768fc657FF6A42',
-  nDays: 90,
-});
-```
+## Per-chain walkthroughs
 
-### Vault activity via Goldsky subgraph
+### EVM (`actions/evm.ts`)
 
-The app also queries on-chain deposit/withdrawal events directly from a Goldsky-hosted subgraph. See `src/sdk.ts` for the full implementation -- it resolves the subgraph URL from vault metadata, then runs GraphQL queries authenticated with your Goldsky bearer token.
+1. `sdk.evm.setSigner(walletClient)` before every write. The wallet can rotate between interactions.
+2. Approve is its own button. `sdk.evm.approve` returns `sent`, `sufficient` or `native`; the deposit button unlocks after it.
+3. `vaultDeposit({ target, wallet, amount, wait: true })` in human units.
+4. Withdraw is `vaultRequestRedeem`, then `getVaultAvailableRedemptions`, then `claimWithdrawal` (`evm-2`) or `vaultRedeem` with `receiverIndex: '0'` (`evm-0`, `evm-1`), chosen by `vault.version`.
 
-## Project structure
+### Solana (`actions/solana.ts`)
 
-```
-src/
-  sdk.ts              # SDK init + subgraph activity queries
-  App.tsx             # Main component, data fetching
-  components/
-    VaultHeader.tsx   # Vault name, logo, status
-    VaultStats.tsx    # TVL, APY, share price cards
-    VaultInfo.tsx     # Detailed metadata table
-    HistoricalChart.tsx  # Interactive 7/30/90-day charts
-    VaultActivity.tsx # Deposit/withdrawal activity table
-  utils/
-    format.ts         # Number/address formatting helpers
-```
+1. `Solana.utils.resolveProgramId(vault.address, { program_id: vault.programId })`. The catalog's `programId` is what makes a factory (v2) vault resolve; pass `vaultAddress` only when it differs from the program.
+2. `sdk.solana.setWalletProvider(publicKey, signTransaction)` before every write.
+3. Amounts are `bigint` from `toNormalizedBn(amount, decimals).raw`.
+4. `vaultDeposit(programId, idl, publicKey, raw, undefined, vaultAddress)`. Keep the `undefined` in slot five.
+5. Withdrawals are sized with the share mint's decimals from `fetchUserShareBalanceRaw`.
+6. A failed balance read shows "unknown", never 0. Submit stays disabled until `publicKey` and `signTransaction` are both present.
 
-## Vite configuration notes
+### Stellar (`actions/stellar.ts`)
 
-The SDK is a CommonJS package. The Vite config includes polyfills and interop settings needed for it to work in a browser/ESM environment:
+1. Connect with Freighter `requestAccess` on click, never on mount. Restore the stored address in an effect.
+2. `sdk.stellar.vaultDeposit({ contractId, amount, senderAddress })` builds unsigned XDR; `amount` is the raw string in smallest units. Freighter signs with the mainnet passphrase; `sdk.stellar.submitTransaction` sends it.
+3. Pre-flight: Horizon `GET /accounts/{G...}` returns 404 for an unfunded account, which cannot source a transaction. The form explains activation and re-checks every 8 s. Network failure fails open.
+4. Native XLM: Max is capped at the spendable balance (reserve, subentries, sponsorship, liabilities, fee buffer). Offering the full balance reverts with `Error(Contract, #10)`.
+5. Withdraw reads `getUserPosition` first and refuses while `decimalsFromFallback` is true. Share decimals can be asset decimals plus a vault offset (13 for earnUSDC).
+6. An `AugustSDKError` with `context.resultCode === 'txBadSeq'` is rebuilt and resubmitted once. An `AugustTimeoutError` means the outcome is unknown, so the UI links the explorer instead of saying failed.
 
-- `global: 'globalThis'` -- polyfills the Node `global` reference
-- `buffer` alias -- polyfills the Node `buffer` module
-- `defaultIsModuleExports: true` -- handles CJS default export interop
+### Hardening left out on purpose
 
-See `vite.config.ts` for the full configuration.
+Solana retry on Lighthouse guard trips and landed-signature recovery after a confirmation error; the Stellar XDR sequence guard, collision-safe Freighter transport and Soroban error decoding; the Solana withdrawal queue; D'CENT, Para, Ledger and Stellar Wallets Kit.
 
-## Available scripts
+## CORS
 
-| Command | Description |
-|---|---|
-| `pnpm dev` | Start dev server with hot reload |
-| `pnpm build` | Type-check and build for production |
-| `pnpm preview` | Preview the production build locally |
-| `pnpm lint` | Run ESLint |
+The Upshift API allows `starter.upshift.finance` and the production app origins. It rejects `localhost` on every port and Vercel preview URLs. In `pnpm dev`, Vite proxies `/api/august` to `https://api.augustdigital.io/api/v1` and the SDK is pointed at that path, so local reads work. The production build calls the API directly.
+
+If you host this app on your own origin, ask Upshift to add it to the allow-list or put the same proxy in front of it.
+
+## Chain notes
+
+- Solana and Stellar addresses are case-sensitive. Never lowercase them.
+- Solana vaults carry the SDK's synthetic chain id `-1`, Stellar `-3`. `vaults.ts` groups on those.
+- EVM writes sign on the chains in `integration/evm-chains.ts` (Ethereum mainnet). The form asks the wallet to switch when it is on another chain, shows no form for a vault on a chain outside that list, and builds explorer links from the chain's own explorer.
+- Positions are read once per chain family, so one failing family does not hide the others. EVM positions cover the chains configured in `providers` (Ethereum mainnet).
+- The SDK logs a version-check warning when a newer release exists. Set `versionCheck: { enabled: false }` to silence it.

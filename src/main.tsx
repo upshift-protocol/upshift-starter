@@ -1,10 +1,25 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { App } from './App';
+import { WalletProviders } from './integration/wallets/providers';
+import { followColorScheme } from './theme';
+import './vendor/variables.css';
+import './styles.css';
 
-createRoot(document.getElementById('root')!).render(
+followColorScheme(
+  document.documentElement,
+  window.matchMedia('(prefers-color-scheme: dark)'),
+);
+
+createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>
-    <App />
+    <WalletProviders
+      rpc={{
+        ethereum: import.meta.env.VITE_RPC_ETHEREUM,
+        solana: import.meta.env.VITE_RPC_SOLANA,
+      }}
+    >
+      <App />
+    </WalletProviders>
   </StrictMode>,
-)
+);

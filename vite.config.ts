@@ -1,23 +1,21 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   define: {
-    // Some SDK dependencies reference `global`
     global: 'globalThis',
+    'import.meta.env.CI': JSON.stringify(process.env.CI ?? ''),
+    'import.meta.env.VERCEL_ENV': JSON.stringify(process.env.VERCEL_ENV ?? ''),
   },
-  resolve: {
-    alias: {
-      // Polyfill buffer for browser environment
-      buffer: 'buffer/',
+  build: { commonjsOptions: { defaultIsModuleExports: true } },
+  server: {
+    proxy: {
+      '/api/august': {
+        target: 'https://api.augustdigital.io/api/v1',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/august/, ''),
+      },
     },
   },
-  build: {
-    commonjsOptions: {
-      // Handle CJS default export interop for the SDK
-      defaultIsModuleExports: true,
-    },
-  },
-})
+});
