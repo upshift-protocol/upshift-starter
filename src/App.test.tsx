@@ -1,4 +1,4 @@
-import type { IVault } from '@augustdigital/sdk';
+import { type IVault, SPECIAL_CHAINS } from '@augustdigital/sdk';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { App } from './App';
 import { loadVaultDetail } from './integration/vault-detail';
@@ -7,6 +7,7 @@ import { listVaultsByFamily } from './integration/vaults';
 
 vi.mock('./integration/sdk', () => ({ createSdk: () => ({}) }));
 vi.mock('./components/EvmActions', () => ({ EvmActions: () => null }));
+vi.mock('./components/SolanaActions', () => ({ SolanaActions: () => null }));
 vi.mock('./integration/vaults', async (importActual) => ({
   ...(await importActual<typeof import('./integration/vaults')>()),
   listVaultsByFamily: vi.fn(),
@@ -52,6 +53,43 @@ describe('App', () => {
       solana: [],
       stellar: [],
     });
+  });
+
+  it('names the app in the header', async () => {
+    render(<App />);
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Upshift SDK Example' }),
+    ).toBeInTheDocument();
+    await row();
+  });
+
+  it('returns to the chain tab of the vault that was open', async () => {
+    const solana = {
+      ...vault,
+      address: 'sol',
+      chainId: SPECIAL_CHAINS.solana.chainId,
+      name: 'jitoSOL',
+    } as IVault;
+    vi.mocked(listVaultsByFamily).mockResolvedValue({
+      evm: [vault],
+      solana: [solana],
+      stellar: [],
+    });
+    vi.mocked(loadVaultDetail).mockResolvedValue({
+      vault: solana,
+      history: [],
+      historyError: null,
+    });
+    render(<App />);
+    fireEvent.click(await screen.findByRole('tab', { name: /Solana/ }));
+    fireEvent.click(screen.getByRole('button', { name: /jitoSOL/ }));
+    await screen.findByText('Version');
+    fireEvent.click(await back());
+    expect(await screen.findByRole('tab', { name: /Solana/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: /jitoSOL/ })).toBeInTheDocument();
   });
 
   it('opens a vault and returns to the list', async () => {

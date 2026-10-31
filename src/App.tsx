@@ -2,6 +2,7 @@ import type { IVault } from '@augustdigital/sdk';
 import { useEffect, useState } from 'react';
 import { VaultDetail } from './components/VaultDetail';
 import { EvmActions } from './components/EvmActions';
+import { Logo } from './components/Logo';
 import { Positions } from './components/Positions';
 import { SolanaActions } from './components/SolanaActions';
 import { StellarActions } from './components/StellarActions';
@@ -36,6 +37,7 @@ export function App() {
     status: 'loading',
   });
   const [selected, setSelected] = useState<IVault | null>(null);
+  const [family, setFamily] = useState<ChainFamily>('evm');
   const [detail, setDetail] = useState<LoadState<Detail>>({
     status: 'loading',
   });
@@ -69,6 +71,11 @@ export function App() {
     };
   }, [selected]);
 
+  const open = (vault: IVault) => {
+    setFamily(familyOf(vault.chainId));
+    setSelected(vault);
+  };
+
   const openPosition = (family: ChainFamily, address: string) => {
     if (vaults.status !== 'ready') return undefined;
     const vault = vaults.data[family].find(
@@ -76,13 +83,16 @@ export function App() {
         v.address === address ||
         (family === 'evm' && v.address.toLowerCase() === address.toLowerCase()),
     );
-    return vault ? () => setSelected(vault) : undefined;
+    return vault ? () => open(vault) : undefined;
   };
 
   return (
     <main className="app">
       <header className="app-header">
-        <h1>Upshift SDK Starter</h1>
+        <h1 className="app-brand">
+          <Logo />
+          <span>Upshift</span> <small>SDK Example</small>
+        </h1>
         <WalletBar wallets={wallets} />
       </header>
       <p className="app-banner">
@@ -140,7 +150,12 @@ export function App() {
             <p role="alert">{vaults.message}</p>
           ) : null}
           {vaults.status === 'ready' ? (
-            <VaultList vaults={vaults.data} onSelect={setSelected} />
+            <VaultList
+              vaults={vaults.data}
+              active={family}
+              onActiveChange={setFamily}
+              onSelect={open}
+            />
           ) : null}
         </>
       )}
