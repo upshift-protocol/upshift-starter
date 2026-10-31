@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { Footer } from './components/Footer';
 import { WalletProviders } from './integration/wallets';
 import { followColorScheme } from './theme';
 import './vendor/variables.css';
@@ -20,6 +21,7 @@ createRoot(document.getElementById('root') as HTMLElement).render(
       }}
     >
       <App />
+      <Footer />
     </WalletProviders>
   </StrictMode>,
 );

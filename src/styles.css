@@ -18,7 +18,8 @@ button:disabled { border-color: var(--up-color-border-muted); background: transp
 .link-button:hover:not(:disabled) { text-decoration-color: currentColor; }
 @media (prefers-reduced-motion: reduce) { button { transition: none; } }
 
-.app { display: flex; flex-direction: column; gap: 1.5rem; max-width: 64rem; margin: 0 auto; padding: 1rem 1rem 4rem; }
+#root { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+.app { display: flex; flex-direction: column; flex: 1 0 auto; gap: 1.5rem; width: 100%; max-width: 64rem; margin: 0 auto; padding: 1rem 1rem 4rem; }
 .app > * { min-width: 0; margin: 0; }
 .app > .link-button { align-self: flex-start; }
 .app-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--up-color-border-muted); }
@@ -108,4 +109,14 @@ button:disabled { border-color: var(--up-color-border-muted); background: transp
 @media (prefers-reduced-motion: reduce) { .tx-busy::before { animation: none; } }
 .redemptions { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
 .redemptions > li:has(button) { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding: 0.625rem 0.625rem 0.625rem 1rem; border: 1px solid var(--up-color-border-muted); border-radius: var(--up-radius-lg); font-size: var(--up-text-sm); font-variant-numeric: tabular-nums; }
-@media (min-width: 48rem) { .app { gap: 2rem; padding: 1.5rem 1.5rem 5rem; } }
+.app-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.5rem 1rem; padding: 0.75rem 1rem; border-top: 1px solid var(--up-color-border-muted); background: var(--up-color-surface); color: var(--up-color-muted-foreground); font-size: var(--up-text-xs); }
+[data-theme='dark'] .app-footer { background: var(--up-color-background); }
+.app-footer ul { display: flex; align-items: center; gap: 0.75rem; margin: 0; padding: 0; list-style: none; }
+.app-footer ul a { display: inline-flex; opacity: 0.8; transition: opacity 150ms, color 150ms; }
+.app-footer ul a:hover { opacity: 1; color: var(--up-color-foreground); }
+.app-footer img, .app-footer svg { width: 0.875rem; height: 0.875rem; }
+.app-footer > a { text-decoration: none; transition: color 150ms; }
+.app-footer > a:hover { color: var(--up-color-foreground); }
+.app-footer p { margin: 0; }
+@media (prefers-reduced-motion: reduce) { .app-footer a { transition: none; } }
+@media (min-width: 48rem) { .app { gap: 2rem; padding: 1.5rem 1.5rem 5rem; } .app-footer { padding-inline: 1.5rem; } }

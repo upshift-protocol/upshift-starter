@@ -1,4 +1,8 @@
-import { type IVault, SPECIAL_CHAINS } from '@augustdigital/sdk';
+import {
+  type IGetVaultsOptions,
+  type IVault,
+  SPECIAL_CHAINS,
+} from '@augustdigital/sdk';
 
 export type ChainFamily = 'evm' | 'solana' | 'stellar';
 export type VaultsByFamily = Record<ChainFamily, IVault[]>;
@@ -27,8 +31,15 @@ export function depositAssetOf(vault: Pick<IVault, 'depositAssets'>) {
   return asset;
 }
 
+const LIST_OPTIONS = {
+  loans: false,
+  allocations: false,
+  loadSubaccounts: false,
+  loadSnapshots: false,
+} satisfies IGetVaultsOptions;
+
 export async function listVaultsByFamily(sdk: {
-  getVaults: () => Promise<IVault[]>;
+  getVaults: (options: IGetVaultsOptions) => Promise<IVault[]>;
 }): Promise<VaultsByFamily> {
-  return groupVaultsByFamily(await sdk.getVaults());
+  return groupVaultsByFamily(await sdk.getVaults(LIST_OPTIONS));
 }

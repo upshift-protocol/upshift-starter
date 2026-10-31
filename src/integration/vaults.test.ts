@@ -27,11 +27,16 @@ describe('groupVaultsByFamily', () => {
 });
 
 describe('listVaultsByFamily', () => {
-  it('reads the catalog once and groups it', async () => {
+  it('reads the catalog once, without per-vault enrichment, and groups it', async () => {
     const getVaults = vi.fn().mockResolvedValue([vault(-3, 'xlm')]);
     const grouped = await listVaultsByFamily({ getVaults });
     expect(getVaults).toHaveBeenCalledTimes(1);
-    expect(getVaults).toHaveBeenCalledWith();
+    expect(getVaults).toHaveBeenCalledWith({
+      loans: false,
+      allocations: false,
+      loadSubaccounts: false,
+      loadSnapshots: false,
+    });
     expect(grouped.stellar).toHaveLength(1);
   });
 });
