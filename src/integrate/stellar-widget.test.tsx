@@ -90,6 +90,7 @@ describe('Stellar UpshiftVault template', () => {
     expect(getVault).toHaveBeenCalledWith({
       vault: ROUTE_VAULT.address,
       chainId: -3,
+      options: { loans: false, allocations: false },
     });
   });
 

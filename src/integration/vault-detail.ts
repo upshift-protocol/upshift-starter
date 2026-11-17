@@ -18,7 +18,11 @@ export interface VaultDetail {
 }
 
 export interface VaultDetailSdk {
-  getVault: (props: { vault: IAddress; chainId?: number }) => Promise<IVault>;
+  getVault: (props: {
+    vault: IAddress;
+    chainId?: number;
+    options?: { loans?: boolean; allocations?: boolean };
+  }) => Promise<IVault>;
   getVaultHistoricalTimeseries: (props: {
     vault: IAddress;
     nDays?: number;
@@ -47,7 +51,11 @@ export async function loadVaultDetail(
 ): Promise<VaultDetail> {
   const address = target.address as IAddress;
   const [vault, timeseries] = await Promise.allSettled([
-    sdk.getVault({ vault: address, chainId: target.chainId }),
+    sdk.getVault({
+      vault: address,
+      chainId: target.chainId,
+      options: { loans: false, allocations: false },
+    }),
     sdk.getVaultHistoricalTimeseries({
       vault: address,
       nDays: HISTORY_DAYS,

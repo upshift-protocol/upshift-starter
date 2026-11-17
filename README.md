@@ -83,7 +83,7 @@ Each test sits next to the file it covers.
 | `monitoring.env` | `DEV` | Keeps this demo out of production telemetry. A real integration leaves the `PROD` default. |
 | `monitoring.curatorAlerts` | `{ enabled: false }` | A failed Stellar redeem would otherwise page the vault's curator. A real integration keeps alerts on. |
 | `analytics.enabled` | `false` in CI and preview builds, `true` in local `pnpm dev` | Same reason as `env`, except local dev mirrors production. |
-| `keys` | omitted | Vault reads need no August key. |
+| `keys` | omitted | Vault reads need no August key. `getVault` reads loans and allocations by default, and allocations need a key, so every read here passes `options: { loans: false, allocations: false }`. |
 | `publicApiBaseUrl` | dev only: `<origin>/api/august` | See CORS below. |
 
 The package is CommonJS. Vite's dev server and its production build expose the default export differently, so `resolveSdkClass` unwraps `default.default`, `default` or the module itself. `build.commonjsOptions.defaultIsModuleExports` and `define.global` in `vite.config.ts` are part of the same interop and are required.

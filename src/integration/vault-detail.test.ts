@@ -49,7 +49,11 @@ describe('loadVaultDetail', () => {
       { getVault, getVaultHistoricalTimeseries },
       vault,
     );
-    expect(getVault).toHaveBeenCalledWith({ vault: 'Cabc', chainId: -3 });
+    expect(getVault).toHaveBeenCalledWith({
+      vault: 'Cabc',
+      chainId: -3,
+      options: { loans: false, allocations: false },
+    });
     expect(getVaultHistoricalTimeseries).toHaveBeenCalledWith({
       vault: 'Cabc',
       nDays: HISTORY_DAYS,

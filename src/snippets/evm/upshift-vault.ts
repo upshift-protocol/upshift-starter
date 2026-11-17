@@ -33,6 +33,7 @@ export function readVault(sdk: VaultSdk, vault = VAULT): Promise<IVault> {
   return sdk.getVault({
     vault: vault.address as IAddress,
     chainId: vault.chainId,
+    options: { loans: false, allocations: false },
   });
 }
 

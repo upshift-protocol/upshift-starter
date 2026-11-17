@@ -83,6 +83,7 @@ describe('EVM UpshiftVault template', () => {
     expect(getVault).toHaveBeenCalledWith({
       vault: ROUTE_VAULT.address,
       chainId: 1,
+      options: { loans: false, allocations: false },
     });
   });
 

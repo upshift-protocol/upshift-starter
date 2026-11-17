@@ -233,21 +233,27 @@ export function IntegratePage({
 
   useEffect(() => {
     let live = true;
-    sdk.getVault({ vault: address as IAddress, chainId }).then(
-      (vault) =>
-        live &&
-        setLoad(
-          sameAddress(vault.address, address, family)
-            ? { status: 'ready', vault }
-            : { status: 'missing' },
-        ),
-      (error: unknown) =>
-        live &&
-        setLoad({
-          status: 'error',
-          message: error instanceof Error ? error.message : String(error),
-        }),
-    );
+    sdk
+      .getVault({
+        vault: address as IAddress,
+        chainId,
+        options: { loans: false, allocations: false },
+      })
+      .then(
+        (vault) =>
+          live &&
+          setLoad(
+            sameAddress(vault.address, address, family)
+              ? { status: 'ready', vault }
+              : { status: 'missing' },
+          ),
+        (error: unknown) =>
+          live &&
+          setLoad({
+            status: 'error',
+            message: error instanceof Error ? error.message : String(error),
+          }),
+      );
     return () => {
       live = false;
     };

@@ -106,7 +106,11 @@ describe('IntegratePage', () => {
       level: 1,
       name: 'Integrate Route USDC',
     });
-    expect(getVault).toHaveBeenCalledWith({ vault: ADDRESS, chainId: 1 });
+    expect(getVault).toHaveBeenCalledWith({
+      vault: ADDRESS,
+      chainId: 1,
+      options: { loans: false, allocations: false },
+    });
     for (const text of [
       'Ethereum',
       'USDC',
@@ -127,6 +131,7 @@ describe('IntegratePage', () => {
     expect(getVault).toHaveBeenCalledWith({
       vault: ADDRESS.toLowerCase(),
       chainId: 1,
+      options: { loans: false, allocations: false },
     });
   });
 
@@ -156,6 +161,7 @@ describe('IntegratePage', () => {
     expect(getVault).toHaveBeenCalledWith({
       vault: STELLAR.address,
       chainId: -3,
+      options: { loans: false, allocations: false },
     });
     expect(codeOf('upshift-vault.ts')).toContain(
       `address: '${STELLAR.address}'`,
