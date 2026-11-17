@@ -32,7 +32,7 @@ describe('IntegrateLanding', () => {
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'Ship Upshift vaults in your app',
+        name: 'Integrate Upshift vaults in your app',
       }),
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'SDK docs' })).toHaveAttribute(

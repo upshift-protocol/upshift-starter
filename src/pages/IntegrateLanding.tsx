@@ -89,7 +89,7 @@ export function IntegrateLanding() {
   return (
     <>
       <section className="landing-hero">
-        <h1>Ship Upshift vaults in your app</h1>
+        <h1>Integrate Upshift vaults in your app</h1>
         <p>
           Choose a vault on EVM, Solana or Stellar. Its page gives you a typed
           SDK module and a React component, set to that vault. The component is
