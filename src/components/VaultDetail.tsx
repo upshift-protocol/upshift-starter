@@ -1,4 +1,4 @@
-import type { IVault } from '@augustdigital/sdk';
+import type { IVault } from '@upshiftfinance/sdk';
 import {
   Line,
   LineChart,
@@ -8,6 +8,7 @@ import {
   YAxis,
 } from 'recharts';
 import type { HistoryPoint } from '../integration/vault-detail';
+import { VaultViews } from './VaultViews';
 
 const number = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
 
@@ -116,6 +117,7 @@ export function VaultDetail({
         ← All vaults
       </button>
       <h2>{vault.name}</h2>
+      <VaultViews vault={vault} current="overview" />
       <VaultStats vault={vault} />
       <h3>Last 30 days</h3>
       <VaultHistoryChart history={history} error={historyError} />

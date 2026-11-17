@@ -1,4 +1,4 @@
-import type { IVault, IVaultAvailableRedemption } from '@augustdigital/sdk';
+import type { IVault, IVaultAvailableRedemption } from '@upshiftfinance/sdk';
 import {
   type EvmSdk,
   type EvmSigner,

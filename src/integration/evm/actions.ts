@@ -1,10 +1,10 @@
-import type AugustSDK from '@augustdigital/sdk';
+import type AugustSDK from '@upshiftfinance/sdk';
 import {
   type IAddress,
   type IVault,
   type IVaultAvailableRedemption,
   toNormalizedBn,
-} from '@augustdigital/sdk';
+} from '@upshiftfinance/sdk';
 import { depositAssetOf } from '../vaults';
 
 export type EvmSdk = Pick<AugustSDK, 'evm' | 'getVaultAvailableRedemptions'>;

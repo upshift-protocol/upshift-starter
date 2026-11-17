@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://starter.upshift.finance/</loc>
+    <loc>https://integrate.upshift.finance/</loc>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://integrate.upshift.finance/vaults</loc>
     <changefreq>weekly</changefreq>
   </url>
 </urlset>

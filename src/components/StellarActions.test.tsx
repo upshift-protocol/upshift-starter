@@ -1,4 +1,4 @@
-import type { IVault } from '@augustdigital/sdk';
+import type { IVault } from '@upshiftfinance/sdk';
 import {
   act,
   fireEvent,

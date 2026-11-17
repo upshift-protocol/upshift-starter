@@ -2,7 +2,7 @@ import type {
   IAddress,
   IHistoricalTimeseriesResponse,
   IVault,
-} from '@augustdigital/sdk';
+} from '@upshiftfinance/sdk';
 
 export interface HistoryPoint {
   date: string;

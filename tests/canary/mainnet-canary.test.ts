@@ -1,13 +1,10 @@
-import * as sdkModule from '@augustdigital/sdk';
-import { type IAddress, Solana, Stellar } from '@augustdigital/sdk';
+import * as sdkModule from '@upshiftfinance/sdk';
+import { type IAddress, Solana, Stellar } from '@upshiftfinance/sdk';
 import { describe, expect, it } from 'vitest';
 import { buildSdkConfig, resolveSdkClass } from '../../src/integration/sdk';
 import { resolveSolanaTarget } from '../../src/integration/solana/actions';
 import { familyOf } from '../../src/integration/vaults';
-import { FEATURED_VAULTS } from './featured-vaults';
-
-const STELLAR_HOLDER =
-  'GAHBXQUD5ALLP33GEE3ZUTGTPMC74CZVBQHKNGP2UOR763AR4W3V3Y7I';
+import { FEATURED_VAULTS, STELLAR_HOLDER } from './featured-vaults';
 
 const AugustSDK = resolveSdkClass(sdkModule);
 const sdk = new AugustSDK(

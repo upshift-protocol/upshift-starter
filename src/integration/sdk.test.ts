@@ -47,7 +47,7 @@ describe('buildSdkConfig', () => {
       buildSdkConfig({ DEV: true }, 'http://localhost:5173').publicApiBaseUrl,
     ).toBe('http://localhost:5173/api/august');
     expect(
-      buildSdkConfig({ DEV: false }, 'https://starter.upshift.finance')
+      buildSdkConfig({ DEV: false }, 'https://integrate.upshift.finance')
         .publicApiBaseUrl,
     ).toBeUndefined();
   });

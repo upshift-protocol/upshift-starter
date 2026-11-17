@@ -1,4 +1,4 @@
-import { type IVault, toNormalizedBn } from '@augustdigital/sdk';
+import { type IVault, toNormalizedBn } from '@upshiftfinance/sdk';
 import { useEffect, useState } from 'react';
 import {
   type StellarAccount,

@@ -1,9 +1,9 @@
-import type AugustSDK from '@augustdigital/sdk';
+import type AugustSDK from '@upshiftfinance/sdk';
 import {
-  AugustSDKError,
+  UpshiftSDKError,
   type IVault,
   toNormalizedBn,
-} from '@augustdigital/sdk';
+} from '@upshiftfinance/sdk';
 import { depositAssetOf } from '../vaults';
 
 export type StellarSdk = Pick<AugustSDK, 'stellar'>;
@@ -130,7 +130,7 @@ export async function previewShares(
 
 export function isStaleSequence(error: unknown): boolean {
   return (
-    error instanceof AugustSDKError && error.context?.resultCode === 'txBadSeq'
+    error instanceof UpshiftSDKError && error.context?.resultCode === 'txBadSeq'
   );
 }
 

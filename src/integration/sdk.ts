@@ -1,4 +1,4 @@
-import * as sdkModule from '@augustdigital/sdk';
+import * as sdkModule from '@upshiftfinance/sdk';
 import { DEFAULT_RPC, DEV_API_PROXY_PATH, type StarterEnv } from './config';
 
 type AugustSDKClass = typeof sdkModule.default;

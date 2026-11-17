@@ -47,7 +47,7 @@ export function Footer() {
         ))}
       </ul>
       <a href="https://docs.upshift.finance/sdk/three-chain-app">Docs</a>
-      <a href="https://github.com/upshift-protocol/example-sdk-app">Source</a>
+      <a href="https://github.com/upshift-protocol/upshift-starter">Source</a>
       <p>Copyright © {new Date().getFullYear()} Upshift</p>
     </footer>
   );

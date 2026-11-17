@@ -1,4 +1,4 @@
-import type { IVault } from '@augustdigital/sdk';
+import type { IVault } from '@upshiftfinance/sdk';
 import { type KeyboardEvent, useId } from 'react';
 import {
   type ChainFamily,

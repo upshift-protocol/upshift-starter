@@ -1,8 +1,19 @@
-import type { IVault } from '@augustdigital/sdk';
+import type { IVault } from '@upshiftfinance/sdk';
 import { groupVaultsByFamily, listVaultsByFamily } from './vaults';
 
-const vault = (chainId: number, name: string) =>
-  ({ chainId, name, address: name }) as IVault;
+const vault = (
+  chainId: number,
+  name: string,
+  extra: Partial<Pick<IVault, 'status' | 'isVisible'>> = {},
+) =>
+  ({
+    chainId,
+    name,
+    address: name,
+    status: 'active',
+    isVisible: true,
+    ...extra,
+  }) as IVault;
 
 describe('groupVaultsByFamily', () => {
   it('splits vaults into evm, solana and stellar by synthetic chain id', () => {
@@ -38,5 +49,27 @@ describe('listVaultsByFamily', () => {
       loadSnapshots: false,
     });
     expect(grouped.stellar).toHaveLength(1);
+  });
+
+  it('lists only active, visible vaults on chains the starter supports', async () => {
+    const getVaults = vi
+      .fn()
+      .mockResolvedValue([
+        vault(1, 'eth'),
+        vault(-1, 'sol'),
+        vault(-3, 'xlm'),
+        vault(1, 'no-flag', { isVisible: undefined }),
+        vault(1, 'closed', { status: 'closed' }),
+        vault(1, 'testing', { status: 'testing' }),
+        vault(1, 'migrated', { status: 'migrated' }),
+        vault(1, 'invisible', { isVisible: false }),
+        vault(-3, 'invisible-xlm', { isVisible: false }),
+        vault(101, 'sui'),
+        vault(42161, 'arb'),
+      ]);
+    const grouped = await listVaultsByFamily({ getVaults });
+    expect(grouped.evm.map((v) => v.name)).toEqual(['eth', 'no-flag']);
+    expect(grouped.solana.map((v) => v.name)).toEqual(['sol']);
+    expect(grouped.stellar.map((v) => v.name)).toEqual(['xlm']);
   });
 });

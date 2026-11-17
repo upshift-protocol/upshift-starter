@@ -1,4 +1,4 @@
-import { AugustSDKError, type IVault } from '@augustdigital/sdk';
+import { UpshiftSDKError, type IVault } from '@upshiftfinance/sdk';
 import {
   NATIVE_XLM_CONTRACT,
   type StellarSdk,
@@ -185,7 +185,7 @@ describe('stellarDeposit', () => {
     const s = sdk();
     s.stellar.submitTransaction
       .mockRejectedValueOnce(
-        new AugustSDKError('TRANSACTION_FAILED' as never, 'bad seq', {
+        new UpshiftSDKError('TRANSACTION_FAILED' as never, 'bad seq', {
           context: { resultCode: 'txBadSeq' },
         }),
       )
@@ -212,7 +212,7 @@ describe('isStaleSequence', () => {
     expect(isStaleSequence(new Error('txBadSeq'))).toBe(false);
     expect(
       isStaleSequence(
-        new AugustSDKError('TRANSACTION_FAILED' as never, 'x', {
+        new UpshiftSDKError('TRANSACTION_FAILED' as never, 'x', {
           context: { resultCode: 'txBadSeq' },
         }),
       ),

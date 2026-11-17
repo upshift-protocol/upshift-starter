@@ -1,5 +1,5 @@
-import type AugustSDK from '@augustdigital/sdk';
-import { type IVault, Solana, toNormalizedBn } from '@augustdigital/sdk';
+import type AugustSDK from '@upshiftfinance/sdk';
+import { type IVault, Solana, toNormalizedBn } from '@upshiftfinance/sdk';
 import {
   PublicKey,
   type Transaction,

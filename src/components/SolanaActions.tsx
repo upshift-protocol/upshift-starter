@@ -1,4 +1,4 @@
-import type { IVault } from '@augustdigital/sdk';
+import type { IVault } from '@upshiftfinance/sdk';
 import { useEffect, useState } from 'react';
 import {
   type SolanaBalances,

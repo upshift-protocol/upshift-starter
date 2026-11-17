@@ -1,4 +1,4 @@
-import type { IVault } from '@augustdigital/sdk';
+import type { IVault } from '@upshiftfinance/sdk';
 import {
   type SolanaSdk,
   type SolanaSigner,
@@ -14,8 +14,8 @@ const sdkMocks = vi.hoisted(() => ({
   getVaultMints: vi.fn(),
   resolveProgramId: vi.fn(),
 }));
-vi.mock('@augustdigital/sdk', async (importActual) => {
-  const actual = await importActual<typeof import('@augustdigital/sdk')>();
+vi.mock('@upshiftfinance/sdk', async (importActual) => {
+  const actual = await importActual<typeof import('@upshiftfinance/sdk')>();
   return {
     ...actual,
     Solana: {

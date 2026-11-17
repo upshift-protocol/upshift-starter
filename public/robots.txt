@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://starter.upshift.finance/sitemap.xml
+Sitemap: https://integrate.upshift.finance/sitemap.xml

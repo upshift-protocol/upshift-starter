@@ -159,6 +159,18 @@
   --up-color-dv-4: var(--up-viz-blue);
   --up-color-dv-5: var(--up-viz-red);
 
+  /* Chain identity, mode-independent like the dv ramp. Dots and bars only. */
+  --up-color-chain-ethereum: #8b9cf7;
+  --up-color-chain-hyperevm: #5eead4;
+  --up-color-chain-arbitrum: #28a0f0;
+  --up-color-chain-base: #3c7bff;
+  --up-color-chain-avalanche: #e84142;
+  --up-color-chain-bsc: #f0b90b;
+  --up-color-chain-monad: #836ef9;
+  --up-color-chain-solana: #9945ff;
+  --up-color-chain-stellar: #7b7fa8;
+  --up-color-chain-sui: #4da2ff;
+
   /* Resting elevation for a card sitting on the page canvas. Light separates
      by shadow, dark by border — so this is `none` under [data-theme='dark'],
      and a card should carry BOTH this and its border. */

@@ -1,7 +1,7 @@
 {
   "name": "Upshift SDK Example",
   "short_name": "Upshift SDK",
-  "description": "Open-source React app built on @augustdigital/sdk for Upshift vaults on EVM, Solana and Stellar.",
+  "description": "Open-source React app built on @upshiftfinance/sdk for Upshift vaults on EVM, Solana and Stellar.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",

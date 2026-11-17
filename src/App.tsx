@@ -1,14 +1,13 @@
-import type { IVault } from '@augustdigital/sdk';
+import type { IVault } from '@upshiftfinance/sdk';
 import { useEffect, useState } from 'react';
 import { VaultDetail } from './components/VaultDetail';
 import { EvmActions } from './components/EvmActions';
-import { Logo } from './components/Logo';
 import { Positions } from './components/Positions';
 import { SolanaActions } from './components/SolanaActions';
 import { StellarActions } from './components/StellarActions';
 import { VaultList } from './components/VaultList';
-import { WalletBar } from './components/WalletBar';
-import { createSdk } from './integration/sdk';
+import { vaultPath } from './integrate/paths';
+import { sdk } from './integration/starter-sdk';
 import {
   type VaultDetail as Detail,
   loadVaultDetail,
@@ -20,6 +19,7 @@ import {
   listVaultsByFamily,
 } from './integration/vaults';
 import { useWallets } from './integration/wallets';
+import { navigate } from './router';
 
 type LoadState<T> =
   | { status: 'loading' }
@@ -30,23 +30,57 @@ function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
 }
 
-const sdk = createSdk();
+// The list outlives App: Root unmounts it off /vaults and remounts it on a
+// nav click. Neither should refetch or flash the loading state.
+let cachedVaults: VaultsByFamily | null = null;
 
-export function App() {
-  const [vaults, setVaults] = useState<LoadState<VaultsByFamily>>({
-    status: 'loading',
-  });
-  const [selected, setSelected] = useState<IVault | null>(null);
-  const [family, setFamily] = useState<ChainFamily>('evm');
+/** Forget the cached vault list (tests). */
+export function clearVaultCache() {
+  cachedVaults = null;
+}
+
+function findVault(
+  vaults: VaultsByFamily,
+  { chainId, address }: VaultRef,
+): IVault | null {
+  const family = familyOf(chainId);
+  return (
+    vaults[family].find(
+      (v) =>
+        v.chainId === chainId &&
+        (family === 'evm'
+          ? v.address.toLowerCase() === address.toLowerCase()
+          : v.address === address),
+    ) ?? null
+  );
+}
+
+type VaultRef = { chainId: number; address: string };
+
+export function App({ target = null }: { target?: VaultRef | null }) {
+  const [vaults, setVaults] = useState<LoadState<VaultsByFamily>>(() =>
+    cachedVaults
+      ? { status: 'ready', data: cachedVaults }
+      : { status: 'loading' },
+  );
+  const selected =
+    target && vaults.status === 'ready' ? findVault(vaults.data, target) : null;
+  const [family, setFamily] = useState<ChainFamily>(() =>
+    target ? familyOf(target.chainId) : 'evm',
+  );
   const [detail, setDetail] = useState<LoadState<Detail>>({
     status: 'loading',
   });
   const wallets = useWallets();
 
   useEffect(() => {
+    if (cachedVaults) return;
     let cancelled = false;
     listVaultsByFamily(sdk).then(
-      (data) => cancelled || setVaults({ status: 'ready', data }),
+      (data) => {
+        cachedVaults = data;
+        if (!cancelled) setVaults({ status: 'ready', data });
+      },
       (error: unknown) =>
         cancelled ||
         setVaults({ status: 'error', message: errorMessage(error) }),
@@ -73,8 +107,15 @@ export function App() {
 
   const open = (vault: IVault) => {
     setFamily(familyOf(vault.chainId));
-    setSelected(vault);
+    navigate(vaultPath(vault));
   };
+  const back = () => navigate('/vaults');
+  const shown =
+    selected &&
+    detail.status === 'ready' &&
+    detail.data.vault.address === selected.address
+      ? detail.data
+      : null;
 
   const openPosition = (family: ChainFamily, address: string) => {
     if (vaults.status !== 'ready') return undefined;
@@ -87,14 +128,8 @@ export function App() {
   };
 
   return (
-    <main className="app">
-      <header className="app-header">
-        <h1 className="app-brand">
-          <Logo />
-          <span>Upshift</span> <small>SDK Example</small>
-        </h1>
-        <WalletBar wallets={wallets} />
-      </header>
+    <>
+      <h1>Vaults</h1>
       <p className="app-banner">
         Mainnet. Real funds. Connecting a wallet does not move anything;
         deposits and withdrawals ask for a signature first.
@@ -108,37 +143,44 @@ export function App() {
         }}
         onOpen={openPosition}
       />
-      {selected ? (
+      {target ? (
         <>
-          {detail.status !== 'ready' ? (
-            <button
-              type="button"
-              className="link-button"
-              onClick={() => setSelected(null)}
-            >
+          {shown ? null : (
+            <button type="button" className="link-button" onClick={back}>
               ← All vaults
             </button>
+          )}
+          {vaults.status === 'loading' ? <p>Loading vaults…</p> : null}
+          {vaults.status === 'error' ? (
+            <p role="alert">{vaults.message}</p>
           ) : null}
-          {detail.status === 'loading' ? <p>Loading {selected.name}…</p> : null}
-          {detail.status === 'error' ? (
+          {vaults.status === 'ready' && !selected ? (
+            <p>
+              No vault at <code>{target.address}</code>.
+            </p>
+          ) : null}
+          {selected && !shown && detail.status !== 'error' ? (
+            <p>Loading {selected.name}…</p>
+          ) : null}
+          {selected && detail.status === 'error' ? (
             <p role="alert">{detail.message}</p>
           ) : null}
-          {detail.status === 'ready' ? (
+          {shown ? (
             <>
               <VaultDetail
-                vault={detail.data.vault}
-                history={detail.data.history}
-                historyError={detail.data.historyError}
-                onBack={() => setSelected(null)}
+                vault={shown.vault}
+                history={shown.history}
+                historyError={shown.historyError}
+                onBack={back}
               />
-              {familyOf(detail.data.vault.chainId) === 'evm' ? (
-                <EvmActions sdk={sdk} vault={detail.data.vault} />
+              {familyOf(shown.vault.chainId) === 'evm' ? (
+                <EvmActions sdk={sdk} vault={shown.vault} />
               ) : null}
-              {familyOf(detail.data.vault.chainId) === 'solana' ? (
-                <SolanaActions sdk={sdk} vault={detail.data.vault} />
+              {familyOf(shown.vault.chainId) === 'solana' ? (
+                <SolanaActions sdk={sdk} vault={shown.vault} />
               ) : null}
-              {familyOf(detail.data.vault.chainId) === 'stellar' ? (
-                <StellarActions sdk={sdk} vault={detail.data.vault} />
+              {familyOf(shown.vault.chainId) === 'stellar' ? (
+                <StellarActions sdk={sdk} vault={shown.vault} />
               ) : null}
             </>
           ) : null}
@@ -159,6 +201,6 @@ export function App() {
           ) : null}
         </>
       )}
-    </main>
+    </>
   );
 }

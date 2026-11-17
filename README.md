@@ -2,7 +2,7 @@
 
 # Upshift SDK starter
 
-A three-chain reference integration on `@augustdigital/sdk`: EVM, Solana and Stellar vaults in one Vite + React app.
+A three-chain reference integration on `@upshiftfinance/sdk`: EVM, Solana and Stellar vaults in one Vite + React app.
 
 Mainnet only. Real funds. Vault reads work with no wallet and no API keys. Solana balances and Solana writes also need a Solana RPC that allows `getTokenAccountsByOwner`, which free public endpoints do not (see `VITE_RPC_SOLANA`). Every write asks the wallet for a signature first.
 
@@ -31,11 +31,13 @@ Every variable is optional.
 
 ## Layout
 
-`src/integration/` is the part to copy. It imports only `@augustdigital/sdk`, `wagmi`, `viem`, `@solana/wallet-adapter-*`, `@solana/web3.js` and `@stellar/freighter-api`. `src/components/` is the React UI on top of it; replace it with your own.
+`src/integration/` is the part to copy. It imports only `@upshiftfinance/sdk`, `wagmi`, `viem`, `@solana/wallet-adapter-*`, `@solana/web3.js` and `@stellar/freighter-api`. `src/components/` is the React UI on top of it; replace it with your own.
 
 ```text
 src/
-├── main.tsx                mounts WalletProviders around App
+├── main.tsx                mounts WalletProviders around Root
+├── Root.tsx                picks the page for the path (/ and /vaults, else not found)
+├── router.tsx              path matching, navigate, Link (no router dependency)
 ├── App.tsx                 vault list, vault detail, the form for the vault's chain
 ├── integration/            copy this directory
 │   ├── config.ts           default RPCs, dev API proxy path
@@ -119,9 +121,11 @@ Solana retry on Lighthouse guard trips and landed-signature recovery after a con
 
 ## CORS
 
-The Upshift API allows `starter.upshift.finance` and the production app origins. It rejects `localhost` on every port and Vercel preview URLs. In `pnpm dev`, Vite proxies `/api/august` to `https://api.augustdigital.io/api/v1` and the SDK is pointed at that path, so local reads work. The production build calls the API directly.
+The Upshift API allows every `*.upshift.finance` origin. It rejects `localhost` on every port. In `pnpm dev`, Vite proxies `/api/august` to `https://api.augustdigital.io/api/v1` and the SDK is pointed at that path, so local reads work. The production build calls the API directly.
 
 If you host this app on your own origin, ask Upshift to add it to the allow-list or put the same proxy in front of it.
+
+The app routes by path, so your host must serve `index.html` for every unknown page path. `pnpm dev` and `vite preview` already do; on Vercel, add `"rewrites": [{ "source": "/((?!assets/|media/).*)", "destination": "/index.html" }]` to `vercel.json`. The rewrite skips `/assets/` and `/media/`, so a missing build file or video returns a 404 and not the HTML shell.
 
 ## Chain notes
 

@@ -1,4 +1,4 @@
-import type { IVault } from '@augustdigital/sdk';
+import type { IVault } from '@upshiftfinance/sdk';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { VaultDetail, VaultHistoryChart, VaultStats } from './VaultDetail';
 
@@ -78,5 +78,32 @@ describe('VaultDetail', () => {
     render(<VaultDetail vault={vault} history={[]} onBack={onBack} />);
     fireEvent.click(screen.getByRole('button', { name: /All vaults/ }));
     expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('switches to the vault’s integrate page, with Overview marked current', () => {
+    render(<VaultDetail vault={vault} history={[]} onBack={() => {}} />);
+    const views = screen.getByRole('navigation', { name: 'Vault view' });
+    expect(screen.getByRole('link', { name: 'Overview' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(screen.getByRole('link', { name: 'Integrate' })).toHaveAttribute(
+      'href',
+      `/vaults/ethereum/${vault.address}/integrate`,
+    );
+    expect(views).toContainElement(
+      screen.getByRole('link', { name: 'Overview' }),
+    );
+  });
+
+  it('has no view switch for a vault on a chain without templates', () => {
+    render(
+      <VaultDetail
+        vault={{ ...vault, chainId: 8453 } as typeof vault}
+        history={[]}
+        onBack={() => {}}
+      />,
+    );
+    expect(screen.queryByRole('navigation', { name: 'Vault view' })).toBeNull();
   });
 });

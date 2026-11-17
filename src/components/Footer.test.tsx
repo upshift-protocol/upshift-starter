@@ -27,7 +27,7 @@ describe('Footer', () => {
       within(footer).getByRole('link', { name: 'Source' }),
     ).toHaveAttribute(
       'href',
-      'https://github.com/upshift-protocol/example-sdk-app',
+      'https://github.com/upshift-protocol/upshift-starter',
     );
     expect(footer).toHaveTextContent(
       `Copyright © ${new Date().getFullYear()} Upshift`,

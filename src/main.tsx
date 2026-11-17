@@ -1,8 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { App } from './App';
 import { Footer } from './components/Footer';
 import { WalletProviders } from './integration/wallets';
+import { Root } from './Root';
 import { followColorScheme } from './theme';
 import './vendor/variables.css';
 import './styles.css';
@@ -20,7 +20,7 @@ createRoot(document.getElementById('root') as HTMLElement).render(
         solana: import.meta.env.VITE_RPC_SOLANA,
       }}
     >
-      <App />
+      <Root />
       <Footer />
     </WalletProviders>
   </StrictMode>,

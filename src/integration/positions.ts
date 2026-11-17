@@ -1,5 +1,5 @@
-import type AugustSDK from '@augustdigital/sdk';
-import type { IAddress, IVaultPosition } from '@augustdigital/sdk';
+import type AugustSDK from '@upshiftfinance/sdk';
+import type { IAddress, IVaultPosition } from '@upshiftfinance/sdk';
 import type { ChainFamily } from './vaults';
 
 export type PositionsSdk = Pick<AugustSDK, 'getVaultPositions'>;

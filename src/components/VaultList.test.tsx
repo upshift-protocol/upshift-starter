@@ -1,4 +1,4 @@
-import type { IVault } from '@augustdigital/sdk';
+import type { IVault } from '@upshiftfinance/sdk';
 import { fireEvent, render, screen } from '@testing-library/react';
 import type { VaultsByFamily } from '../integration/vaults';
 import { VaultList } from './VaultList';

@@ -3,8 +3,9 @@ import { FAMILY_LABELS } from '../integration/vaults';
 import type { WalletSummary } from '../integration/wallets';
 
 function short(address: string) {
-  return address.length > 14
-    ? `${address.slice(0, 6)}…${address.slice(-4)}`
+  const head = address.startsWith('0x') ? 6 : 4;
+  return address.length > head + 5
+    ? `${address.slice(0, head)}…${address.slice(-4)}`
     : address;
 }
 
@@ -22,14 +23,20 @@ function WalletButton({ wallet }: { wallet: WalletSummary }) {
       setBusy(false);
     }
   };
+  const address =
+    wallet.connected && wallet.address ? short(wallet.address) : null;
   return (
     <div className={wallet.connected ? 'wallet wallet-connected' : 'wallet'}>
       <span className="wallet-chip">
         <span className="wallet-label">{FAMILY_LABELS[wallet.family]}</span>
-        <button type="button" onClick={toggle} disabled={busy}>
-          {wallet.connected && wallet.address
-            ? `Disconnect ${short(wallet.address)}`
-            : 'Connect'}
+        <button
+          type="button"
+          onClick={toggle}
+          disabled={busy}
+          aria-label={address ? `Disconnect ${address}` : undefined}
+          data-tooltip={address ? 'Disconnect' : undefined}
+        >
+          {address ?? 'Connect'}
         </button>
       </span>
       {error ? (

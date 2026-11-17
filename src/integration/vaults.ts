@@ -2,7 +2,8 @@ import {
   type IGetVaultsOptions,
   type IVault,
   SPECIAL_CHAINS,
-} from '@augustdigital/sdk';
+} from '@upshiftfinance/sdk';
+import { EVM_CHAINS } from './evm/chains';
 
 export type ChainFamily = 'evm' | 'solana' | 'stellar';
 export type VaultsByFamily = Record<ChainFamily, IVault[]>;
@@ -38,8 +39,23 @@ const LIST_OPTIONS = {
   loadSnapshots: false,
 } satisfies IGetVaultsOptions;
 
+const LISTED_CHAIN_IDS = new Set<number>([
+  ...EVM_CHAINS.map((chain) => chain.id),
+  SPECIAL_CHAINS.solana.chainId,
+  SPECIAL_CHAINS.stellar.chainId,
+]);
+
+function isListed(vault: IVault): boolean {
+  return (
+    vault.status === 'active' &&
+    vault.isVisible !== false &&
+    LISTED_CHAIN_IDS.has(vault.chainId)
+  );
+}
+
 export async function listVaultsByFamily(sdk: {
   getVaults: (options: IGetVaultsOptions) => Promise<IVault[]>;
 }): Promise<VaultsByFamily> {
-  return groupVaultsByFamily(await sdk.getVaults(LIST_OPTIONS));
+  const vaults = await sdk.getVaults(LIST_OPTIONS);
+  return groupVaultsByFamily(vaults.filter(isListed));
 }
