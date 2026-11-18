@@ -1,6 +1,16 @@
 import type { IVault } from '@upshiftfinance/sdk';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { type ReactElement, cloneElement } from 'react';
 import { VaultDetail, VaultHistoryChart, VaultStats } from './VaultDetail';
+
+vi.mock('recharts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('recharts')>()),
+  ResponsiveContainer: ({ children }: { children: ReactElement }) =>
+    cloneElement(
+      children as ReactElement<{ width?: number; height?: number }>,
+      { width: 600, height: 240 },
+    ),
+}));
 
 const vault = {
   address: '0x80E1048eDE66ec4c364b4F22C8768fc657FF6A42',
@@ -69,6 +79,24 @@ describe('VaultHistoryChart', () => {
       />,
     );
     expect(screen.getByTestId('vault-chart')).toBeInTheDocument();
+  });
+
+  it('labels the TVL axis in compact notation so it fits a phone', () => {
+    const { container } = render(
+      <VaultHistoryChart
+        history={[
+          { date: '2026-10-01', sharePrice: 1, tvl: 0, dailyApy: 0 },
+          { date: '2026-10-02', sharePrice: 1.01, tvl: 2_200_000, dailyApy: 0 },
+        ]}
+      />,
+    );
+    const ticks = [
+      ...container.querySelectorAll(
+        '.yAxis .recharts-cartesian-axis-tick-value',
+      ),
+    ].map((tick) => tick.textContent);
+    expect(ticks).toContain('2.2M');
+    expect(ticks).not.toContain('2,200,000');
   });
 });
 

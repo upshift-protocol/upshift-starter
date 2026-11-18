@@ -7,6 +7,8 @@ import {
 import type { createSdk } from '../integration/sdk';
 import { type ChainFamily, FAMILY_LABELS } from '../integration/vaults';
 
+const amount = new Intl.NumberFormat('en-US', { maximumFractionDigits: 6 });
+
 type State =
   | { status: 'idle' }
   | { status: 'loading' }
@@ -86,10 +88,10 @@ export function Positions({
                   <span className="vault-address">{p.vault}</span>
                   <span>{p.status}</span>
                   <span className="vault-metric">
-                    {p.walletBalance.normalized} shares
+                    {amount.format(Number(p.walletBalance.normalized))} shares
                   </span>
                   <span className="vault-metric">
-                    {p.redeemable.normalized} redeemable
+                    {amount.format(Number(p.redeemable.normalized))} redeemable
                   </span>
                 </button>
               </li>

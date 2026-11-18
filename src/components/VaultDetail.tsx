@@ -11,6 +11,10 @@ import type { HistoryPoint } from '../integration/vault-detail';
 import { VaultViews } from './VaultViews';
 
 const number = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
+const compact = new Intl.NumberFormat('en-US', {
+  notation: 'compact',
+  maximumFractionDigits: 2,
+});
 
 function formatSeconds(seconds: number | undefined) {
   if (seconds === undefined) return 'n/a';
@@ -69,13 +73,13 @@ export function VaultHistoryChart({
             yAxisId="price"
             domain={['auto', 'auto']}
             tickFormatter={(v: number) => v.toFixed(3)}
-            width={64}
+            width={48}
           />
           <YAxis
             yAxisId="tvl"
             orientation="right"
-            tickFormatter={(v: number) => number.format(v)}
-            width={80}
+            tickFormatter={(v: number) => compact.format(v)}
+            width={48}
           />
           <Tooltip />
           <Line

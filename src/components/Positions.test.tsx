@@ -27,6 +27,14 @@ describe('Positions', () => {
     expect(screen.getByText(/Ethereum mainnet/)).toBeInTheDocument();
   });
 
+  it('rounds full-precision balances so the row fits a phone', async () => {
+    const sdk = sdkWith(
+      vi.fn().mockResolvedValue([position('Cabc', '1000.123456789012345678')]),
+    );
+    render(<Positions sdk={sdk} addresses={{ ...none, stellar: 'G1' }} />);
+    expect(await screen.findByText('1,000.123457 shares')).toBeInTheDocument();
+  });
+
   it('opens the vault behind a row and disables rows it cannot open', async () => {
     const sdk = sdkWith(
       vi
