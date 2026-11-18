@@ -37,4 +37,4 @@ minimumReleaseAge: 4320
 
 minimumReleaseAgeExclude:
   - '@upshiftfinance/*'
-  - '@augustdigitalcanary/*'
+  - '@upshift-canary/*'
