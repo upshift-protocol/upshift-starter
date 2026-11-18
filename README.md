@@ -1,12 +1,25 @@
-> **Read-only mirror.** This repository is published automatically from `apps/starter` in the private `upshift-protocol/upshift-frontends` monorepo. Open issues here; changes land upstream.
-
 # Upshift SDK starter
 
-A three-chain reference integration on `@upshiftfinance/sdk`: EVM, Solana and Stellar vaults in one Vite + React app.
+A three-chain reference integration on `@upshiftfinance/sdk`: EVM, Solana and Stellar vaults in one Vite + React app, live at [integrate.upshift.finance](https://integrate.upshift.finance).
 
 Mainnet only. Real funds. Vault reads work with no wallet and no API keys. Solana balances and Solana writes also need a Solana RPC that allows `getTokenAccountsByOwner`, which free public endpoints do not (see `VITE_RPC_SOLANA`). Every write asks the wallet for a signature first.
 
 Full walkthrough: [Build a three-chain vault app](https://docs.upshift.finance/sdk/three-chain-app).
+
+## What to copy
+
+Most files here only run this demo site. An integration needs a few of them. Paths are under `src/`.
+
+| | EVM | Solana | Stellar |
+| --- | --- | --- | --- |
+| SDK functions | [`snippets/evm/upshift-vault.ts`](src/snippets/evm/upshift-vault.ts) | [`snippets/solana/upshift-vault.ts`](src/snippets/solana/upshift-vault.ts) | [`snippets/stellar/upshift-vault.ts`](src/snippets/stellar/upshift-vault.ts) |
+| React component | [`snippets/evm/UpshiftVault.tsx`](src/snippets/evm/UpshiftVault.tsx) | [`snippets/solana/UpshiftVault.tsx`](src/snippets/solana/UpshiftVault.tsx) | [`snippets/stellar/UpshiftVault.tsx`](src/snippets/stellar/UpshiftVault.tsx) |
+| Wallet provider | `EvmWalletProvider` in [`integration/evm/wallet.tsx`](src/integration/evm/wallet.tsx) | `SolanaWalletProvider` in [`integration/solana/wallet.tsx`](src/integration/solana/wallet.tsx) | none: Freighter is a browser extension |
+| Install | `@upshiftfinance/sdk wagmi viem @tanstack/react-query` | `@upshiftfinance/sdk @solana/web3.js @solana/wallet-adapter-react` | `@upshiftfinance/sdk @stellar/freighter-api` |
+
+1. **One vault.** Copy the two `snippets/<chain>/` files. They import only the SDK and that chain's wallet library. `upshift-vault.ts` exports `createVaultSdk`, `readVault`, `readPosition`, `deposit`, and `requestWithdraw` (EVM) or `withdraw` (Solana, Stellar). `UpshiftVault.tsx` exports `<UpshiftVault />`, built on those functions. Set `VAULT`, `RPC_URL` and `appName` at the top of `upshift-vault.ts`, then render the component inside the wallet provider. Each vault's Integrate tab on [integrate.upshift.finance](https://integrate.upshift.finance/vaults) gives you the same two files with `VAULT` filled in.
+2. **Every vault on all three chains.** Copy [`integration/`](src/integration). It holds the SDK instance, the vault catalog, positions, the wallet providers, and the reads and writes for each chain in `integration/<chain>/actions.ts`. It imports nothing from outside that directory. `components/EvmActions.tsx`, `SolanaActions.tsx` and `StellarActions.tsx` show one form per chain on top of it.
+3. **Skip the rest.** These files only run this site: `pages/`, `integrate/`, `App.tsx`, `Root.tsx`, `router.tsx`, `main.tsx`, `theme.ts`, `reduced-motion.ts`, `styles.css`, the site chrome in `components/` (`Layout`, `Footer`, `Logo`, `ThemeToggle`, `CodeBlock`, `CopyButton`, `VaultViews`), and the top-level `public/` folder. Every component uses plain class names (`upshift-vault*` in the snippets), so it works without `styles.css`; it only loses this site's look.
 
 ## Run
 
@@ -31,17 +44,16 @@ Every variable is optional.
 
 ## Layout
 
-`src/integration/` is the part to copy. It imports only `@upshiftfinance/sdk`, `wagmi`, `viem`, `@solana/wallet-adapter-*`, `@solana/web3.js` and `@stellar/freighter-api`. `src/components/` is the React UI on top of it; replace it with your own.
-
 ```text
 src/
-├── main.tsx                mounts WalletProviders around Root
-├── Root.tsx                picks the page for the path (/ and /vaults, else not found)
-├── router.tsx              path matching, navigate, Link (no router dependency)
-├── App.tsx                 vault list, vault detail, the form for the vault's chain
-├── integration/            copy this directory
+├── snippets/               copy-paste pair per chain (see What to copy)
+│   ├── evm/                upshift-vault.ts, UpshiftVault.tsx
+│   ├── solana/             upshift-vault.ts, UpshiftVault.tsx
+│   └── stellar/            upshift-vault.ts, UpshiftVault.tsx
+├── integration/            full integration, copy this directory
 │   ├── config.ts           default RPCs, dev API proxy path
-│   ├── sdk.ts              the one AugustSDK instance
+│   ├── sdk.ts              builds the SDK config and instance
+│   ├── starter-sdk.ts      the one instance this app shares
 │   ├── vaults.ts           vault catalog grouped by chain family
 │   ├── vault-detail.ts     one vault and 30 days of history
 │   ├── positions.ts        a wallet's positions on every chain
@@ -57,18 +69,16 @@ src/
 │   └── stellar/
 │       ├── wallet.tsx      Freighter provider, useStellarWallet
 │       └── actions.ts      account pre-flight, balances, deposit, withdraw
-└── components/             React UI: one form per chain, shared list and detail views
+├── components/             demo UI: one form per chain, vault list and detail, site chrome
+├── App.tsx                 /vaults and /vaults/<chain>/<address>: list, overview, form
+├── pages/                  demo site: landing page and each vault's Integrate tab
+├── integrate/              demo site: vault URLs, and the files and commands the Integrate tab shows
+├── main.tsx                mounts WalletProviders around Root and Footer
+├── Root.tsx                picks the page for the path
+├── router.tsx              path matching, navigate, Link (no router dependency)
+└── styles.css, theme.ts    this site's look and light/dark switch
 tests/canary/               read-only checks against the live vaults, nightly in CI
 ```
-
-Where each chain lives:
-
-| | EVM | Solana | Stellar |
-| --- | --- | --- | --- |
-| Wallet | `integration/evm/wallet.tsx` | `integration/solana/wallet.tsx` | `integration/stellar/wallet.tsx` |
-| Reads and writes | `integration/evm/actions.ts` | `integration/solana/actions.ts` | `integration/stellar/actions.ts` |
-| Form | `components/EvmActions.tsx` | `components/SolanaActions.tsx` | `components/StellarActions.tsx` |
-| Libraries | `wagmi`, `viem` | `@solana/wallet-adapter-*`, `@solana/web3.js` | `@stellar/freighter-api` |
 
 Each test sits next to the file it covers.
 
